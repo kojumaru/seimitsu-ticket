@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import liff from "@line/liff";
-import { db } from "../src/lib/firebase"; // 作成した設定をインポート
+import { db } from "./lib/firebase"; // 作成した設定をインポート
 import { doc, updateDoc, increment, getDoc, setDoc } from "firebase/firestore";
 
 export default function Home() {
