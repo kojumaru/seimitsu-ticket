@@ -5,10 +5,17 @@ import { db } from "../lib/firebase";
 import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 
 export default function AdminPage() {
-  const [exhibitId, setExhibitId] = useState("kikaku-a");
+  const exhibitId =
+    typeof window !== "undefined"
+      ? (new URLSearchParams(window.location.search).get("exhibitId") ??
+        "kikaku-a")
+      : "kikaku-a";
+
   const [nowServing, setNowServing] = useState(0);
 
   useEffect(() => {
+    if (!exhibitId) return;
+
     const ticketRef = doc(db, "tickets", exhibitId);
 
     const unsubscribe = onSnapshot(ticketRef, (snap) => {
