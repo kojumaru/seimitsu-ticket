@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
-import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc, getDoc } from "firebase/firestore";
 
 export default function AdminPage() {
   const exhibitId =
@@ -29,8 +29,34 @@ export default function AdminPage() {
 
   const nextNumber = async () => {
     const ticketRef = doc(db, "tickets", exhibitId);
+
+    const newNumber = nowServing + 1;
+
+    // ① Firestore更新
     await updateDoc(ticketRef, {
-      nowServing: nowServing + 1,
+      nowServing: newNumber,
+    });
+
+    // ② active_tickets から対象ユーザー取得
+    const activeRef = doc(db, "active_tickets", `${exhibitId}_${newNumber}`);
+
+    const activeSnap = await getDoc(activeRef);
+
+    if (!activeSnap.exists()) return;
+
+    const userId = activeSnap.data().userId;
+
+    // ③ API Routeを叩く
+    await fetch("/api/notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        ticketNumber: newNumber,
+        exhibitId,
+      }),
     });
   };
 
