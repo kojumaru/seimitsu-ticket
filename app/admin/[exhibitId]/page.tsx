@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react"; // Reactをインポート
+
+import { use, useEffect, useState } from "react";
 import { db } from "../../lib/firebase";
 import {
   doc,
@@ -8,18 +9,17 @@ import {
   collection,
   query,
   where,
-  getDocs,
+  getDoc,
   limit,
 } from "firebase/firestore";
 
-// 引数に { params } を追加
-export default function AdminPage({
-  params,
-}: {
-  params: { exhibitId: string };
-}) {
-  // Promiseとして渡されるparamsを展開
-  const { exhibitId } = params;
+type PageProps = {
+  params: Promise<{ exhibitId: string }>;
+};
+
+export default function AdminPage({ params }: PageProps) {
+  // ✅ Next.js 15
+  const { exhibitId } = use(params);
 
   const [currentNumber, setCurrentNumber] = useState(0);
   const [nowServing, setNowServing] = useState(0);
@@ -29,17 +29,21 @@ export default function AdminPage({
   useEffect(() => {
     if (!exhibitId) return;
 
-    // 監視対象も "seimitsu-lab" 固定ではなく exhibitId に変更
-    const unsubscribe = onSnapshot(doc(db, "tickets", exhibitId), (doc) => {
-      if (doc.exists()) {
-        setCurrentNumber(doc.data().currentNumber || 0);
-        setNowServing(doc.data().nowServing || 0);
+    const ticketRef = doc(db, "tickets", exhibitId);
+
+    const unsubscribe = onSnapshot(ticketRef, (snap) => {
+      if (snap.exists()) {
+        setCurrentNumber(snap.data().currentNumber || 0);
+        setNowServing(snap.data().nowServing || 0);
       }
     });
+
     return () => unsubscribe();
   }, [exhibitId]);
 
   const handleCallNext = async () => {
+    if (!exhibitId) return;
+
     const nextNum = nowServing + 1;
     if (nextNum > currentNumber || isCalling) return;
 
@@ -47,29 +51,21 @@ export default function AdminPage({
     setStatusMsg(`⏳ ${nextNum}番（${exhibitId}）を呼び出し中...`);
 
     try {
-      // 1. 指定された企画IDの呼び出し番号を更新
       await updateDoc(doc(db, "tickets", exhibitId), {
         nowServing: nextNum,
       });
 
-      // 2. 「その企画」の「その番号」を持つユーザーを検索
-      // ※users直下に全ての整理券を入れている場合、where条件を工夫する必要があります
-      const q = query(
-        collection(db, "users"),
-        where("ticketNumber", "==", nextNum),
-        limit(1),
-      );
-      const querySnapshot = await getDocs(q);
+      // 🔥 active_tickets を使う場合（推奨）
+      const activeId = `${exhibitId}_${nextNum}`;
+      const activeSnap = await getDoc(doc(db, "active_tickets", activeId));
 
-      if (querySnapshot.empty) {
-        setStatusMsg(`❌ DBに ${exhibitId} の ${nextNum}番 が見つかりません。`);
-        setIsCalling(false);
+      if (!activeSnap.exists()) {
+        setStatusMsg("❌ 対象ユーザーが見つかりません");
         return;
       }
 
-      const userId = querySnapshot.docs[0].id;
+      const { userId } = activeSnap.data();
 
-      // 3. 通知APIを呼び出し
       const response = await fetch("/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,54 +77,54 @@ export default function AdminPage({
       });
 
       if (response.ok) {
-        setStatusMsg(`✨ ${exhibitId} の ${nextNum}番 に通知を送りました！`);
+        setStatusMsg(`✨ ${exhibitId} の ${nextNum}番 に通知しました`);
       } else {
-        const err = await response.json();
-        setStatusMsg(`❌ 通知失敗: ${err.error?.message || "エラー"}`);
+        setStatusMsg("❌ 通知失敗");
       }
-    } catch (error) {
-      console.error(error);
-      setStatusMsg("🔥 通信エラーが発生しました。");
+    } catch (err) {
+      console.error(err);
+      setStatusMsg("🔥 通信エラー");
     } finally {
       setIsCalling(false);
     }
   };
 
+  if (!exhibitId) {
+    return <div className="p-8 text-white">Loading...</div>;
+  }
+
   return (
-    <main className="min-h-screen p-8 bg-gray-900 text-white font-sans flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-8 border-b border-gray-700 w-full pb-4 text-center">
+    <main className="min-h-screen p-8 bg-gray-900 text-white flex flex-col items-center">
+      <h1 className="text-3xl font-bold mb-8 text-center">
         運営パネル：{exhibitId}
       </h1>
 
-      {/* 状況パネルは以前のものを維持 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl">
-        <div className="bg-gray-800 p-6 rounded-2xl border border-blue-500/30 text-center">
-          <p className="text-gray-400 text-sm mb-1">発行済み総数</p>
-          <p className="text-5xl font-mono text-blue-400">{currentNumber}</p>
-        </div>
-        <div className="bg-gray-800 p-6 rounded-2xl border border-green-500/30 text-center">
-          <p className="text-gray-400 text-sm mb-1">呼び出し中</p>
-          <p className="text-5xl font-mono text-green-400">{nowServing}</p>
-        </div>
-        <div className="bg-gray-800 p-6 rounded-2xl border border-yellow-500/30 text-center">
-          <p className="text-gray-400 text-sm mb-1">未案内</p>
-          <p className="text-5xl font-mono text-yellow-400">
-            {currentNumber - nowServing}
-          </p>
-        </div>
+        <Stat label="発行済み総数" value={currentNumber} />
+        <Stat label="呼び出し中" value={nowServing} />
+        <Stat label="未案内" value={currentNumber - nowServing} />
       </div>
 
       <button
         onClick={handleCallNext}
         disabled={nowServing >= currentNumber || isCalling}
-        className="w-full max-w-md bg-green-600 py-12 rounded-3xl text-4xl font-black shadow-lg disabled:bg-gray-600 active:scale-95 transition-all"
+        className="w-full max-w-md bg-green-600 py-12 rounded-3xl text-4xl font-black disabled:bg-gray-600"
       >
         {isCalling ? "通知中..." : `${nowServing + 1}番を呼ぶ`}
       </button>
 
-      <div className="mt-8 p-4 bg-gray-800 rounded-xl w-full max-w-md text-center text-blue-300 border border-blue-900">
+      <div className="mt-8 text-blue-300">
         {statusMsg || `展示「${exhibitId}」の待機中`}
       </div>
     </main>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bg-gray-800 p-6 rounded-2xl text-center">
+      <p className="text-gray-400 text-sm mb-1">{label}</p>
+      <p className="text-5xl font-mono">{value}</p>
+    </div>
   );
 }
