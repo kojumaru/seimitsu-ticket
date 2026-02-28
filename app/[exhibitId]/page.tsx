@@ -3,22 +3,21 @@
 import { use, useEffect, useState } from "react";
 import liff from "@line/liff";
 import { db } from "../lib/firebase";
-import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
 
 type PageProps = {
   params: Promise<{ exhibitId: string }>;
 };
 
 export default function TicketPage({ params }: PageProps) {
-  // ✅ Next.js 15 対応
   const { exhibitId } = use(params);
 
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
   const [nowServing, setNowServing] = useState(0);
   const [ready, setReady] = useState(false);
+  const [isIssuing, setIsIssuing] = useState(false);
 
   useEffect(() => {
-    // exhibitId 未確定なら何もしない（完全ガード）
     if (!exhibitId) return;
 
     const ticketRef = doc(db, "tickets", exhibitId);
@@ -32,7 +31,10 @@ export default function TicketPage({ params }: PageProps) {
     const initLiff = async () => {
       await liff.init({ liffId: "あなたのLIFF_ID" });
 
-      if (!liff.isLoggedIn()) return;
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
 
       const token = liff.getDecodedIDToken();
       if (!token?.sub) return;
@@ -58,25 +60,51 @@ export default function TicketPage({ params }: PageProps) {
   };
 
   const issueTicket = async () => {
-    if (!exhibitId) return;
+    if (!exhibitId || isIssuing) return;
 
-    const profile = await liff.getProfile();
-    const ticketRef = doc(db, "tickets", exhibitId);
-    const snap = await getDoc(ticketRef);
+    try {
+      setIsIssuing(true);
 
-    const newNumber = (snap.data()?.currentNumber || 0) + 1;
+      const profile = await liff.getProfile();
+      const ticketRef = doc(db, "tickets", exhibitId);
 
-    // 1. 発行数更新
-    await setDoc(ticketRef, { currentNumber: newNumber }, { merge: true });
+      const newNumber = await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(ticketRef);
+        const nextNumber = (snap.data()?.currentNumber || 0) + 1;
 
-    // 2. ユーザー保存
-    await setDoc(doc(db, "users", profile.userId, "myTickets", exhibitId), {
-      ticketNumber: newNumber,
-      exhibitName: exhibitId,
-      issuedAt: new Date(),
-    });
+        transaction.set(
+          ticketRef,
+          { currentNumber: nextNumber },
+          { merge: true },
+        );
 
-    setTicketNumber(newNumber);
+        transaction.set(
+          doc(db, "users", profile.userId, "myTickets", exhibitId),
+          {
+            ticketNumber: nextNumber,
+            exhibitName: exhibitId,
+            issuedAt: new Date(),
+          },
+        );
+
+        transaction.set(
+          doc(db, "active_tickets", `${exhibitId}_${nextNumber}`),
+          {
+            userId: profile.userId,
+            exhibitId,
+            ticketNumber: nextNumber,
+          },
+        );
+
+        return nextNumber;
+      });
+
+      setTicketNumber(newNumber);
+    } catch (error) {
+      console.error("整理券発行エラー:", error);
+    } finally {
+      setIsIssuing(false);
+    }
   };
 
   if (!exhibitId) {
@@ -97,9 +125,10 @@ export default function TicketPage({ params }: PageProps) {
       ) : (
         <button
           onClick={issueTicket}
-          className="bg-blue-600 px-8 py-4 rounded-xl text-xl"
+          disabled={isIssuing}
+          className="bg-blue-600 px-8 py-4 rounded-xl text-xl disabled:bg-gray-600"
         >
-          整理券を発行する
+          {isIssuing ? "発行中..." : "整理券を発行する"}
         </button>
       )}
     </main>
