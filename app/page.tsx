@@ -8,11 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Ticket, Clock, CheckCircle2, BellRing } from "lucide-react";
 
 const EXHIBIT_INFO: Record<string, { location: string; name: string }> = {
-  せいみつスイッチ: {
+  switch: {
     name: "せいみつスイッチ",
     location: "工学部14号館 3階 プロジェクト室",
   },
-  ロボットサッカー: {
+  soccer: {
     name: "ロボットサッカー",
     location: "工学部14号館 3階 プロジェクト室",
   },
