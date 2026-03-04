@@ -114,7 +114,7 @@ export default function TicketPage() {
           <div className="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold tracking-widest uppercase mb-3">
             精密Lab. 整理券システム
           </div>
-          <h1 className="text-6xl font-black tracking-tighter text-white italic leading-none mb-4">
+          <h1 className="text-4xl font-black tracking-tight text-white italic leading-tight mb-2">
             {currentInfo.name}
           </h1>
           <div className="flex items-center justify-center gap-2 text-blue-400 font-medium text-sm">
@@ -128,9 +128,9 @@ export default function TicketPage() {
             <p className="text-slate-500 text-[11px] font-bold uppercase mb-2 tracking-widest flex items-center gap-2">
               <Clock size={14} className="text-emerald-400" /> 現在の案内
             </p>
-            <p className="text-[10rem] font-mono font-bold text-emerald-400 leading-none">
+            <p className="text-6xl font-mono font-bold text-emerald-400 leading-none">
               {nowServing}
-              <span className="text-3xl ml-2 font-sans text-slate-500">番</span>
+              <span className="text-2xl ml-2 font-sans text-slate-500">番</span>
             </p>
           </div>
 
@@ -183,7 +183,7 @@ export default function TicketPage() {
                 <button
                   onClick={issueTicket}
                   disabled={isIssuing}
-                  className="w-full bg-white text-slate-900 py-9 rounded-[2rem] text-2xl font-black transition-all active:scale-95 shadow-2xl disabled:opacity-50"
+                  className="w-full bg-white text-slate-900 py-6 rounded-[1.5rem] text-xl font-black transition-all active:scale-95 shadow-xl disabled:opacity-50"
                 >
                   {isIssuing ? "発行中..." : "整理券を受け取る"}
                 </button>
