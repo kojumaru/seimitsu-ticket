@@ -36,7 +36,7 @@ export default function TicketPage() {
 
   const currentInfo = EXHIBIT_INFO[exhibitId] || {
     name: exhibitId.toUpperCase(),
-    location: "工学部2号館",
+    location: "工学部14号館",
   };
 
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
@@ -130,8 +130,8 @@ export default function TicketPage() {
           <h1 className="text-4xl font-black tracking-tight text-white italic leading-tight mb-2">
             {currentInfo.name}
           </h1>
-          <div className="flex items-center justify-center gap-2 text-blue-400 font-medium text-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+          <div className="flex items-center justify-center gap-3 text-blue-400 font-bold text-lg">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
             {currentInfo.location}
           </div>
         </header>
@@ -180,8 +180,12 @@ export default function TicketPage() {
                       className="text-blue-400 shrink-0 mt-0.5"
                       size={16}
                     />
-                    <p className="text-blue-200 text-xs leading-relaxed font-medium text-center w-full">
-                      準備ができたら通知します！
+                    <p className="text-blue-200 text-xs leading-relaxed font-medium">
+                      順番になりましたら
+                      <span className="text-white font-bold">
+                        精密Lab.公式LINEから
+                      </span>
+                      通知します！
                     </p>
                   </div>
                 </div>
@@ -234,7 +238,7 @@ export default function TicketPage() {
                   <span className="text-emerald-400">
                     {currentInfo.name}
                   </span>{" "}
-                  へ！
+                  へお越しださい！
                 </h2>
 
                 <div className="w-full bg-white/5 rounded-3xl p-5 mb-8 border border-white/10">
@@ -250,7 +254,7 @@ export default function TicketPage() {
                   onClick={() => setShowPopup(false)}
                   className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 py-4 rounded-2xl font-black text-lg shadow-lg shadow-emerald-900/20 transition-all active:scale-95"
                 >
-                  向かいます！
+                  閉じる
                 </button>
 
                 <button
