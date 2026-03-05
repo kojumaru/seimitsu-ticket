@@ -16,6 +16,10 @@ const EXHIBIT_INFO: Record<string, { location: string; name: string }> = {
     name: "ロボットサッカー",
     location: "工学部14号館 3階 プロジェクト室",
   },
+  example: {
+    name: "サンプル企画",
+    location: "工学部14号館 ○階 ○○教室",
+  },
 };
 
 export default function TicketPage() {

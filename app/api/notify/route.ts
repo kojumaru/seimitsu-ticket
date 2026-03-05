@@ -8,6 +8,9 @@ const EXHIBIT_INFO: Record<string, { name: string }> = {
   soccer: {
     name: "ロボットサッカー",
   },
+  example: {
+    name: "サンプル企画",
+  },
   // FirebaseのドキュメントIDが増えたらここにも追加してください
 };
 
@@ -24,7 +27,7 @@ export async function POST(req: Request) {
     messages: [
       {
         type: "text",
-        text: `【${displayName}】${ticketNumber}番の方、お越しください！`,
+        text: `【${displayName}】お待たせしました！${ticketNumber}番の方、お越しください！`,
       },
     ],
   };
