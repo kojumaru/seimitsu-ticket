@@ -21,13 +21,7 @@ const EXHIBITS = [
   },
 ];
 
-function ExhibitCard({
-  exhibit,
-  origin,
-}: {
-  exhibit: (typeof EXHIBITS)[0];
-  origin: string;
-}) {
+function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
   const [nowServing, setNowServing] = useState(0);
   const [currentNumber, setCurrentNumber] = useState(0);
 
@@ -44,7 +38,7 @@ function ExhibitCard({
 
   const waitCount = Math.max(0, currentNumber - nowServing);
   const estimatedTime = waitCount * exhibit.timePerPerson;
-  const url = `${origin}/?exhibitId=${exhibit.id}`;
+  const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
 
   return (
     <div className="bg-slate-900/60 backdrop-blur-2xl rounded-[2rem] border border-white/10 p-6 flex flex-col items-center gap-4 shadow-2xl w-full">
@@ -86,12 +80,6 @@ function ExhibitCard({
 }
 
 export default function GuidePage() {
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
   return (
     <main className="min-h-screen bg-[#0a0f1e] text-slate-100 p-6 flex flex-col items-center justify-center font-sans">
       {/* 背景装飾 */}
@@ -114,10 +102,9 @@ export default function GuidePage() {
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {origin &&
-            EXHIBITS.map((exhibit) => (
-              <ExhibitCard key={exhibit.id} exhibit={exhibit} origin={origin} />
-            ))}
+          {EXHIBITS.map((exhibit) => (
+            <ExhibitCard key={exhibit.id} exhibit={exhibit} />
+          ))}
         </div>
       </div>
     </main>
