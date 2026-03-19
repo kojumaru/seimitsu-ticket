@@ -3,13 +3,13 @@ import { getFirestore } from "firebase/firestore";
 
 // スクリーンショットから読み取ったあなたの専用設定
 const firebaseConfig = {
-  apiKey: "AIzaSyCt1t1B1jR_c3HVta-s4lkA0PTdOfTJvjc",
-  authDomain: "seimitsu-ticket-5c4e1.firebaseapp.com",
-  projectId: "seimitsu-ticket-5c4e1",
-  storageBucket: "seimitsu-ticket-5c4e1.firebasestorage.app",
-  messagingSenderId: "1006691636409",
-  appId: "1:1006691636409:web:1e0569d8223802e8d1f768",
-  measurementId: "G-1WLQPVKBWJ",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app =

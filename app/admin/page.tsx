@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore"; // setDocに変更
+import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
+import { notifyUser } from "../actions/notify";
 
 export default function AdminPage() {
   const exhibitId =
@@ -51,18 +52,12 @@ export default function AdminPage() {
 
       const userId = activeSnap.data().userId;
 
-      const res = await fetch("/api/notify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, ticketNumber: newNumber, exhibitId }),
-      });
+      const result = await notifyUser(userId, newNumber, exhibitId);
 
-      if (res.ok) {
+      if (result.ok) {
         console.log("LINE通知に成功しました！");
       } else {
-        console.error(
-          "LINE通知に失敗しました。API側のエラーを確認してください。",
-        );
+        console.error("LINE通知に失敗しました:", result.error);
       }
     } catch (error) {
       console.error("Firestoreの更新中にエラーが発生しました:", error);
