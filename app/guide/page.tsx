@@ -8,14 +8,26 @@ import { Clock, MapPin } from "lucide-react";
 
 const EXHIBITS = [
   {
-    id: "switch",
-    name: "せいみつスイッチ",
+    id: "soccer",
+    name: "ロボットサッカー",
     location: "工学部14号館 3階 プロジェクト室",
     timePerPerson: 5,
   },
   {
-    id: "soccer",
-    name: "ロボットサッカー",
+    id: "chess",
+    name: "ロボットチェス",
+    location: "工学部14号館 3階 プロジェクト室",
+    timePerPerson: 5,
+  },
+  {
+    id: "arm",
+    name: "ロボットアーム",
+    location: "工学部14号館 3階 プロジェクト室",
+    timePerPerson: 5,
+  },
+  {
+    id: "switch",
+    name: "せいみつスイッチ",
     location: "工学部14号館 3階 プロジェクト室",
     timePerPerson: 5,
   },
@@ -101,7 +113,7 @@ export default function GuidePage() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           {EXHIBITS.map((exhibit) => (
             <ExhibitCard key={exhibit.id} exhibit={exhibit} />
           ))}

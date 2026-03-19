@@ -29,6 +29,16 @@ const EXHIBIT_INFO: Record<
     location: "工学部14号館 3階 プロジェクト室",
     timePerPerson: 5,
   },
+  chess: {
+    name: "ロボットチェス",
+    location: "工学部14号館 3階 プロジェクト室",
+    timePerPerson: 5,
+  },
+  arm: {
+    name: "ロボットアーム",
+    location: "工学部14号館 3階 プロジェクト室",
+    timePerPerson: 5,
+  },
   example: {
     name: "サンプル企画",
     location: "工学部14号館 ○階 ○○教室",
