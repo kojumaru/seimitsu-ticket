@@ -51,6 +51,7 @@ export default function TicketPage() {
 
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
   const [nowServing, setNowServing] = useState(0);
+  const [currentNumber, setCurrentNumber] = useState(0);
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [showPopup, setShowPopup] = useState(true); // 手動で閉じられるように
@@ -59,7 +60,10 @@ export default function TicketPage() {
     if (!exhibitId) return;
     const ticketRef = doc(db, "tickets", exhibitId);
     const unsubscribe = onSnapshot(ticketRef, (snap) => {
-      if (snap.exists()) setNowServing(snap.data().nowServing || 0);
+      if (snap.exists()) {
+        setNowServing(snap.data().nowServing || 0);
+        setCurrentNumber(snap.data().currentNumber || 0);
+      }
     });
 
     const initLiff = async () => {
@@ -214,7 +218,17 @@ export default function TicketPage() {
                 </div>
               </motion.div>
             ) : (
-              <div className="py-4 text-center">
+              <div className="py-4 text-center space-y-4">
+                <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 mx-auto">
+                  <Clock size={14} className="text-emerald-400" />
+                  <p className="text-emerald-100 text-sm font-medium">
+                    現在の待ち時間: 約{" "}
+                    <span className="text-emerald-400 font-bold text-lg">
+                      {Math.max(0, currentNumber - nowServing) * currentInfo.timePerPerson}
+                    </span>{" "}
+                    分
+                  </p>
+                </div>
                 <button
                   onClick={issueTicket}
                   disabled={isIssuing}
