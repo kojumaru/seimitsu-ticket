@@ -15,16 +15,25 @@ import {
   X,
 } from "lucide-react";
 
-const EXHIBIT_INFO: Record<string, { location: string; name: string }> = {
+const EXHIBIT_INFO: Record<
+  string,
+  { location: string; name: string; timePerPerson: number }
+> = {
   switch: {
     name: "せいみつスイッチ",
     location: "工学部14号館 3階 プロジェクト室",
+    timePerPerson: 5,
   },
   soccer: {
     name: "ロボットサッカー",
     location: "工学部14号館 3階 プロジェクト室",
+    timePerPerson: 5,
   },
-  example: { name: "サンプル企画", location: "工学部14号館 ○階 ○○教室" },
+  example: {
+    name: "サンプル企画",
+    location: "工学部14号館 ○階 ○○教室",
+    timePerPerson: 5,
+  },
 };
 
 export default function TicketPage() {
@@ -37,6 +46,7 @@ export default function TicketPage() {
   const currentInfo = EXHIBIT_INFO[exhibitId] || {
     name: exhibitId.toUpperCase(),
     location: "工学部14号館",
+    timePerPerson: 5,
   };
 
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
@@ -114,6 +124,9 @@ export default function TicketPage() {
     ? Math.max(0, ticketNumber - nowServing)
     : null;
 
+  const estimatedTime =
+    waitCount !== null ? waitCount * currentInfo.timePerPerson : 0;
+
   return (
     <main className="h-screen bg-[#0a0f1e] text-slate-100 p-6 flex flex-col items-center justify-center font-sans overflow-hidden">
       {/* 背景装飾 */}
@@ -175,6 +188,16 @@ export default function TicketPage() {
                     </span>{" "}
                     人
                   </p>
+                  <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 mt-1 mx-auto">
+                    <Clock size={14} className="text-emerald-400" />
+                    <p className="text-emerald-100 text-sm font-medium">
+                      目安: 約{" "}
+                      <span className="text-emerald-400 font-bold text-lg">
+                        {estimatedTime}
+                      </span>{" "}
+                      分
+                    </p>
+                  </div>
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-3 text-left">
                     <BellRing
                       className="text-blue-400 shrink-0 mt-0.5"
