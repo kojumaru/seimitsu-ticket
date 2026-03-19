@@ -100,7 +100,7 @@ export default function GuidePage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/10 rounded-full blur-[100px]" />
       </div>
 
-      <div className="w-full max-w-2xl z-10 flex flex-col gap-6 text-center">
+      <div className="w-full max-w-6xl z-10 flex flex-col gap-6 text-center">
         <header>
           <div className="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold tracking-widest uppercase mb-3">
             精密Lab. 整理券システム
@@ -113,7 +113,7 @@ export default function GuidePage() {
           </p>
         </header>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {EXHIBITS.map((exhibit) => (
             <ExhibitCard key={exhibit.id} exhibit={exhibit} />
           ))}
