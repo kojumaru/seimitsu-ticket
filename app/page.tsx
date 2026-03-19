@@ -229,6 +229,13 @@ export default function TicketPage() {
               </motion.div>
             ) : (
               <div className="py-4 text-center space-y-4">
+                <p className="text-slate-400 text-sm">
+                  あと{" "}
+                  <span className="text-white font-bold text-2xl">
+                    {Math.max(0, currentNumber - nowServing)}
+                  </span>{" "}
+                  人
+                </p>
                 <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 mx-auto">
                   <Clock size={14} className="text-emerald-400" />
                   <p className="text-emerald-100 text-sm font-medium">
