@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import liff from "@line/liff";
 import { db } from "./lib/firebase";
 import { doc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
@@ -65,6 +65,7 @@ export default function TicketPage() {
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [showPopup, setShowPopup] = useState(true); // 手動で閉じられるように
+  const profileRef = useRef<{ userId: string } | null>(null);
 
   useEffect(() => {
     if (!exhibitId) return;
@@ -82,7 +83,11 @@ export default function TicketPage() {
         liff.login();
         return;
       }
-      const token = liff.getDecodedIDToken();
+      const [token, profile] = await Promise.all([
+        liff.getDecodedIDToken(),
+        liff.getProfile(),
+      ]);
+      profileRef.current = profile;
       if (token?.sub) await checkMyTicket(token.sub);
       setReady(true);
     };
@@ -97,20 +102,22 @@ export default function TicketPage() {
   };
 
   const issueTicket = async () => {
+    if (!profileRef.current) return;
     setIsIssuing(true);
     try {
-      const profile = await liff.getProfile();
+      const { userId } = profileRef.current;
       const ticketRef = doc(db, "tickets", exhibitId);
+      let newNumber = 0;
       await runTransaction(db, async (transaction) => {
         const snap = await transaction.get(ticketRef);
-        const newNumber = (snap.data()?.currentNumber || 0) + 1;
+        newNumber = (snap.data()?.currentNumber || 0) + 1;
         transaction.set(
           ticketRef,
           { currentNumber: newNumber },
           { merge: true },
         );
         transaction.set(
-          doc(db, "users", profile.userId, "myTickets", exhibitId),
+          doc(db, "users", userId, "myTickets", exhibitId),
           {
             ticketNumber: newNumber,
             exhibitName: exhibitId,
@@ -120,13 +127,13 @@ export default function TicketPage() {
         transaction.set(
           doc(db, "active_tickets", `${exhibitId}_${newNumber}`),
           {
-            userId: profile.userId,
+            userId,
             exhibitId,
             ticketNumber: newNumber,
           },
         );
-        setTicketNumber(newNumber);
       });
+      setTicketNumber(newNumber);
     } finally {
       setIsIssuing(false);
     }
