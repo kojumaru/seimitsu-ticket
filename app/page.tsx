@@ -238,7 +238,7 @@ export default function TicketPage() {
                 <p className="text-slate-400 text-sm">
                   あと{" "}
                   <span className="text-white font-bold text-2xl">
-                    {Math.max(0, currentNumber - nowServing)}
+                    {Math.max(0, nowServing - currentNumber)}
                   </span>{" "}
                   人
                 </p>
@@ -247,7 +247,7 @@ export default function TicketPage() {
                   <p className="text-emerald-100 text-sm font-medium">
                     現在の待ち時間: 約{" "}
                     <span className="text-emerald-400 font-bold text-lg">
-                      {Math.max(0, currentNumber - nowServing) * currentInfo.timePerPerson}
+                      {Math.max(0, nowServing - currentNumber) * currentInfo.timePerPerson}
                     </span>{" "}
                     分
                   </p>
