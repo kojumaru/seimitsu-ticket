@@ -48,7 +48,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
     return () => unsubscribe();
   }, [exhibit.id]);
 
-  const waitCount = Math.max(0, currentNumber - nowServing);
+  const waitCount = Math.max(0, nowServing - currentNumber);
   const estimatedTime = waitCount * exhibit.timePerPerson;
   const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
 
