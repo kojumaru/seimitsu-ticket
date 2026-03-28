@@ -64,6 +64,7 @@ export default function TicketPage() {
   const [currentNumber, setCurrentNumber] = useState(0);
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
+  const [issueError, setIssueError] = useState<string | null>(null);
   const [showPopup, setShowPopup] = useState(true); // 手動で閉じられるように
   const profileRef = useRef<{ userId: string } | null>(null);
 
@@ -101,6 +102,7 @@ export default function TicketPage() {
   const issueTicket = async () => {
     if (!profileRef.current) return;
     setIsIssuing(true);
+    setIssueError(null);
     try {
       const { userId } = profileRef.current;
       const ticketRef = doc(db, "tickets", exhibitId);
@@ -131,6 +133,9 @@ export default function TicketPage() {
         );
       });
       setTicketNumber(newNumber);
+    } catch (e) {
+      console.error("issueTicket error:", e);
+      setIssueError(e instanceof Error ? e.message : String(e));
     } finally {
       setIsIssuing(false);
     }
@@ -250,6 +255,9 @@ export default function TicketPage() {
                     分
                   </p>
                 </div>
+                {issueError && (
+                  <p className="text-red-400 text-xs break-all">{issueError}</p>
+                )}
                 <button
                   onClick={issueTicket}
                   disabled={isIssuing}
