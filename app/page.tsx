@@ -142,9 +142,9 @@ export default function TicketPage() {
   };
 
   // 判定：自分の番号が呼ばれたか
-  const isCalled = ticketNumber !== null && nowServing >= ticketNumber;
+  const isCalled = ticketNumber !== null && currentNumber >= ticketNumber;
   const waitCount = ticketNumber
-    ? Math.max(0, ticketNumber - nowServing)
+    ? Math.max(0, ticketNumber - currentNumber)
     : null;
 
   const estimatedTime =
