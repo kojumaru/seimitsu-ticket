@@ -83,11 +83,9 @@ export default function TicketPage() {
         liff.login();
         return;
       }
-      const token = liff.getDecodedIDToken();
-      if (token?.sub) {
-        profileRef.current = { userId: token.sub };
-        checkMyTicket(token.sub); // awaitしない：ボタンをすぐ表示
-      }
+      const profile = await liff.getProfile();
+      profileRef.current = { userId: profile.userId };
+      checkMyTicket(profile.userId); // awaitしない：ボタンをすぐ表示
       setReady(true);
     };
     initLiff();
