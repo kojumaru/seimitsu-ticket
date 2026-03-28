@@ -83,12 +83,11 @@ export default function TicketPage() {
         liff.login();
         return;
       }
-      const [token, profile] = await Promise.all([
-        liff.getDecodedIDToken(),
-        liff.getProfile(),
-      ]);
-      profileRef.current = profile;
-      if (token?.sub) await checkMyTicket(token.sub);
+      const token = liff.getDecodedIDToken();
+      if (token?.sub) {
+        profileRef.current = { userId: token.sub };
+        checkMyTicket(token.sub); // awaitしない：ボタンをすぐ表示
+      }
       setReady(true);
     };
     initLiff();
