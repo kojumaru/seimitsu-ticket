@@ -200,7 +200,7 @@ export default function TicketPage() {
       let newNumber = 0;
       await runTransaction(db, async (transaction) => {
         const snap = await transaction.get(ticketRef);
-        newNumber = (snap.data()?.currentNumber || 0) + 1;
+        newNumber = (snap.data()?.nowServing || 0) + 1;
         transaction.set(
           ticketRef,
           { nowServing: newNumber },
