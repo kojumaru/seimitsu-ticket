@@ -300,7 +300,7 @@ export default function TicketPage() {
 
             {/* タイトル */}
             <h2
-              className="text-[30px] font-black leading-5 mb-2.5 whitespace-pre-line"
+              className="text-[30px] font-black leading-5 mb-4 whitespace-pre-line"
               style={{ letterSpacing: "0.01em" }}
             >
               {currentInfo.name}
@@ -386,7 +386,8 @@ export default function TicketPage() {
                       </p>
                       <p className="text-sm font-black leading-relaxed text-[#FFE08A]">
                         【注意】<br />
-                        １時間以内に企画場所へお並びください。大幅に過ぎた場合、失効扱いとします。
+                        １時間以内に企画場所へお並びください。<br />
+                        大幅に過ぎた場合、失効扱いとします。
                       </p>
                     </div>
                   )}
@@ -433,12 +434,16 @@ export default function TicketPage() {
 
           {/* チケットフッター（スカロップ） */}
           <div
-            className="h-8 bg-[#6B1F3A]"
+            className="h-10 bg-[#6B1F3A]"
             style={{
-              WebkitMaskImage:
-                "radial-gradient(circle 20px at 20px 20px, transparent 99%, black 100%) center top / 40px 100% repeat-x",
-              maskImage:
-                "radial-gradient(circle 20px at 20px 20px, transparent 99%, black 100%) center top / 40px 100% repeat-x",
+              WebkitMaskImage: "radial-gradient(circle 20px at 50% 0px, transparent 99%, black 100%)",
+              WebkitMaskSize: "40px 100%",
+              WebkitMaskPosition: "0 0",
+              WebkitMaskRepeat: "repeat-x",
+              maskImage: "radial-gradient(circle 20px at 50% 0px, transparent 99%, black 100%)",
+              maskSize: "40px 100%",
+              maskPosition: "0 0",
+              maskRepeat: "repeat-x",
               marginTop: "-1px",
             }}
           />
