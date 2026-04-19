@@ -48,8 +48,8 @@ export default function AdminPage() {
 
       console.log(`${exhibitId} の現在案内中を ${newCurrentNumber} に更新します...`);
 
-      // currentNumber を更新
-      await setDoc(ticketRef, { currentNumber: newCurrentNumber }, { merge: true });
+      // currentNumber を更新（呼び出し時刻も記録）
+      await setDoc(ticketRef, { currentNumber: newCurrentNumber, currentNumber_called_at: new Date() }, { merge: true });
 
       const activeRef = doc(db, "active_tickets", `${exhibitId}_${newCurrentNumber}`);
       const activeSnap = await getDoc(activeRef);

@@ -186,6 +186,11 @@ export default function TicketPage() {
           if (snap.exists()) {
             setNowServing(snap.data().nowServing ?? null);
             setCurrentNumber(snap.data().currentNumber ?? null);
+            // 呼び出し時刻を取得
+            const calledAtData = snap.data().currentNumber_called_at;
+            if (calledAtData && !calledAt) {
+              setCalledAt(calledAtData.toDate ? calledAtData.toDate() : new Date(calledAtData));
+            }
           }
         },
         (error) => {
@@ -250,13 +255,6 @@ export default function TicketPage() {
     ticketNumber !== null &&
     currentNumber !== null &&
     currentNumber >= ticketNumber;
-
-  // 呼び出された時刻を記録
-  useEffect(() => {
-    if (isCalled && !calledAt) {
-      setCalledAt(new Date());
-    }
-  }, [isCalled, calledAt]);
 
   return (
     <main
