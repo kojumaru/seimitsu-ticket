@@ -100,6 +100,7 @@ export default function TicketPage() {
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
+  const [calledAt, setCalledAt] = useState<Date | null>(null);
   const profileRef = useRef<{ userId: string } | null>(null);
 
   useEffect(() => {
@@ -177,6 +178,13 @@ export default function TicketPage() {
 
   const isCalled = ticketNumber !== null && currentNumber >= ticketNumber;
 
+  // 呼び出された時刻を記録
+  useEffect(() => {
+    if (isCalled && !calledAt) {
+      setCalledAt(new Date());
+    }
+  }, [isCalled, calledAt]);
+
   return (
     <main className="min-h-screen bg-[#2E0A1A] text-white p-6 flex items-center justify-center" style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}>
       <style>{`
@@ -245,10 +253,7 @@ export default function TicketPage() {
               <div>
                 <div className="text-xs font-medium mb-1.5">現在案内中：</div>
                 <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                  <span className="flex gap-2.5 text-[30px]">
-                    <span>{nowServing}</span>
-                    <span>{nowServing + 1}</span>
-                  </span>
+                  {currentNumber}
                 </div>
               </div>
               {!ready ? (
@@ -283,7 +288,7 @@ export default function TicketPage() {
                   key="called"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="space-y-4"
+                  className="space-y-3"
                 >
                   <div className="bg-[#FFE08A] text-[#4F1128] py-3.5 px-3.5 rounded text-center font-black text-lg" style={{ letterSpacing: "0.04em" }}>
                     順番になりました！
@@ -291,6 +296,16 @@ export default function TicketPage() {
                   <p className="text-xs font-medium leading-relaxed text-white/75">
                     受付までお越しください。お待ちしております！
                   </p>
+                  {calledAt && (
+                    <div className="text-xs font-medium leading-relaxed text-white/60 pt-1">
+                      <p className="mb-1">
+                        呼び出し時刻：{calledAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                      <p className="text-[#FFE08A]">
+                        1時間後に失効します
+                      </p>
+                    </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             ) : ticketNumber ? (
