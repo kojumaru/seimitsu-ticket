@@ -442,22 +442,22 @@ export default function TicketPage() {
             {/* 背景 */}
             <rect width="340" height="40" fill="#6B1F3A" />
 
-            {/* 左上の大きい四分円を切り抜き */}
-            <circle cx="0" cy="0" r="30" fill="#2E0A1A" />
+            {/* 左下の大きい四分円（弦が底辺） */}
+            <circle cx="0" cy="30" r="30" fill="#2E0A1A" />
 
-            {/* 小さい半円 9個を上から切り抜き（半径10、弦が下） */}
-            <circle cx="20" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="60" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="100" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="140" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="170" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="200" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="240" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="280" cy="0" r="10" fill="#2E0A1A" />
-            <circle cx="320" cy="0" r="10" fill="#2E0A1A" />
+            {/* 小さい半円 9個（弦が底辺、弧がチケット内側） */}
+            <circle cx="17.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="52.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="87.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="122.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="170" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="217.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="252.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="287.5" cy="30" r="10" fill="#2E0A1A" />
+            <circle cx="322.5" cy="30" r="10" fill="#2E0A1A" />
 
-            {/* 右上の大きい四分円を切り抜き */}
-            <circle cx="340" cy="0" r="30" fill="#2E0A1A" />
+            {/* 右下の大きい四分円（弦が底辺） */}
+            <circle cx="340" cy="30" r="30" fill="#2E0A1A" />
           </svg>
         </div>
       </div>
