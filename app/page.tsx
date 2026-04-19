@@ -147,8 +147,8 @@ export default function TicketPage() {
   const currentInfo = EXHIBIT_INFO[exhibitId] || EXHIBIT_INFO.switch;
 
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
-  const [nowServing, setNowServing] = useState(0);
-  const [currentNumber, setCurrentNumber] = useState(0);
+  const [nowServing, setNowServing] = useState<number | null>(null);
+  const [currentNumber, setCurrentNumber] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
@@ -333,7 +333,7 @@ export default function TicketPage() {
               <div>
                 <div className="text-xs font-medium mb-1.5">現在案内中：</div>
                 <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                  {currentNumber}
+                  {nowServing === null ? "取得中..." : nowServing}
                 </div>
               </div>
               {!ready ? (
@@ -357,11 +357,15 @@ export default function TicketPage() {
               ) : (
                 <div>
                   <div className="text-xs font-medium mb-1.5">待ち人数：</div>
-                  <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center">
-                    <span className="text-[36px] font-bold">
-                      {Math.max(0, nowServing - currentNumber)}
-                    </span>
-                    <span className="text-sm font-bold ml-1">人</span>
+                  <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[36px] font-bold">
+                    {nowServing === null || currentNumber === null ? (
+                      "取得中..."
+                    ) : (
+                      <>
+                        <span>{Math.max(0, nowServing - currentNumber)}</span>
+                        <span className="text-sm font-bold ml-1">人</span>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -383,7 +387,7 @@ export default function TicketPage() {
                     順番になりました！
                   </div>
                   <p className="text-xs font-medium leading-relaxed text-white/75">
-                    受付までお越しください。お待ちしております！
+                    企画場所までお越しください！お待ちしております！
                   </p>
                   {calledAt && (
                     <div className="pt-2">
