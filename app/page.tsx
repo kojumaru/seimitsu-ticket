@@ -160,8 +160,8 @@ export default function TicketPage() {
     const ticketRef = doc(db, "tickets", exhibitId);
     const unsubscribe = onSnapshot(ticketRef, (snap) => {
       if (snap.exists()) {
-        setNowServing(snap.data().nowServing || 0);
-        setCurrentNumber(snap.data().currentNumber || 0);
+        setNowServing(snap.data().nowServing ?? null);
+        setCurrentNumber(snap.data().currentNumber ?? null);
       }
     });
 
@@ -199,7 +199,7 @@ export default function TicketPage() {
         newNumber = (snap.data()?.currentNumber || 0) + 1;
         transaction.set(
           ticketRef,
-          { currentNumber: newNumber },
+          { nowServing: newNumber },
           { merge: true },
         );
         transaction.set(doc(db, "users", userId, "myTickets", exhibitId), {
@@ -225,7 +225,7 @@ export default function TicketPage() {
     }
   };
 
-  const isCalled = ticketNumber !== null && currentNumber >= ticketNumber;
+  const isCalled = ticketNumber !== null && currentNumber !== null && currentNumber >= ticketNumber;
 
   // 呼び出された時刻を記録
   useEffect(() => {
