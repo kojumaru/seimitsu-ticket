@@ -158,13 +158,6 @@ export default function TicketPage() {
 
   useEffect(() => {
     if (!exhibitId) return;
-    const ticketRef = doc(db, "tickets", exhibitId);
-    const unsubscribe = onSnapshot(ticketRef, (snap) => {
-      if (snap.exists()) {
-        setNowServing(snap.data().nowServing ?? null);
-        setCurrentNumber(snap.data().currentNumber ?? null);
-      }
-    });
 
     const initLiff = async () => {
       await liff.init({ liffId: "2009242984-XYO590kr" });
@@ -180,8 +173,29 @@ export default function TicketPage() {
       checkMyTicket(profile.userId);
       setReady(true);
     };
-    initLiff();
-    return () => unsubscribe();
+
+    const initializeData = async () => {
+      await initLiff();
+
+      // 認証後にリスナーを設定
+      const ticketRef = doc(db, "tickets", exhibitId);
+      const unsubscribe = onSnapshot(ticketRef, (snap) => {
+        if (snap.exists()) {
+          setNowServing(snap.data().nowServing ?? null);
+          setCurrentNumber(snap.data().currentNumber ?? null);
+        }
+      });
+      return unsubscribe;
+    };
+
+    let unsubscribePromise: Promise<any> | null = null;
+    unsubscribePromise = initializeData();
+
+    return () => {
+      if (unsubscribePromise) {
+        unsubscribePromise.then((unsubscribe) => unsubscribe?.());
+      }
+    };
   }, [exhibitId]);
 
   const checkMyTicket = async (uid: string) => {
