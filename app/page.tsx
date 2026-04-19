@@ -12,13 +12,15 @@ const EXHIBIT_INFO: Record<
     location: string;
     name: string;
     timePerPerson: number;
-    illustration: React.ReactNode;
+    illustration?: React.ReactNode;
+    imageUrl?: string;
   }
 > = {
   switch: {
     name: "せいみつスイッチ",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/switch.png",
     illustration: (
       <svg viewBox="0 0 120 120" width="60%" height="60%">
         <circle
@@ -294,7 +296,15 @@ export default function TicketPage() {
               )}
               {/* イラスト */}
               <div className="absolute inset-0 flex items-center justify-center">
-                {currentInfo.illustration}
+                {currentInfo.imageUrl ? (
+                  <img
+                    src={currentInfo.imageUrl}
+                    alt={currentInfo.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  currentInfo.illustration
+                )}
               </div>
             </div>
 
