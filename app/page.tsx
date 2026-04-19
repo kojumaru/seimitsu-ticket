@@ -439,11 +439,11 @@ export default function TicketPage() {
                   className="space-y-3"
                 >
                   <p className="text-xs font-medium leading-relaxed text-white/75">
-                    順番になりましたら精密Lab 公式LINEから通知いたします！
+                    順番になりましたら公式LINEから通知いたします！
                     <br />
-                    ※お呼び出しから1時間以内にご来場されなかった場合、
+                    ※お呼び出しから１時間を経過した整理券は
                     <br />
-                    整理券は無効になる場合があります。ご注意ください。
+                    無効となる場合があります。ご注意ください。
                   </p>
                 </motion.div>
               </AnimatePresence>
