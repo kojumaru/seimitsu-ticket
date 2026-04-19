@@ -3,89 +3,151 @@
 import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { QRCodeSVG } from "qrcode.react";
-import { Clock, MapPin } from "lucide-react";
+import Image from "next/image";
 
 const EXHIBITS = [
   {
     id: "soccer",
-    name: "ロボットサッカー",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "スーパー\nロボットサッカー",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/soccer.png",
   },
   {
     id: "chess",
-    name: "ロボットチェス",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "ロボット\nチェス",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/chess.png",
   },
   {
     id: "arm",
-    name: "ロボットアーム",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "ロボット\nアーム",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/arm.png",
   },
   {
     id: "switch",
-    name: "せいみつスイッチ",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "せいみつ\nスイッチ",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/switch.png",
   },
 ];
 
 function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
-  const [nowServing, setNowServing] = useState(0);
-  const [currentNumber, setCurrentNumber] = useState(0);
+  const [nowServing, setNowServing] = useState<number | null>(null);
+  const [currentNumber, setCurrentNumber] = useState<number | null>(null);
 
   useEffect(() => {
     const ref = doc(db, "tickets", exhibit.id);
     const unsubscribe = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
-        setNowServing(snap.data().nowServing || 0);
-        setCurrentNumber(snap.data().currentNumber || 0);
+        setNowServing(snap.data().nowServing ?? null);
+        setCurrentNumber(snap.data().currentNumber ?? null);
       }
     });
     return () => unsubscribe();
   }, [exhibit.id]);
 
-  const waitCount = Math.max(0, nowServing - currentNumber);
-  const estimatedTime = waitCount * exhibit.timePerPerson;
-  const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
+  const waitCount = (nowServing !== null && currentNumber !== null) ? Math.max(0, nowServing - currentNumber) : null;
 
   return (
-    <div className="bg-slate-900/60 backdrop-blur-2xl rounded-[2rem] border border-white/10 p-6 flex flex-col items-center gap-4 shadow-2xl w-full">
-      <h2 className="text-xl font-black text-white tracking-tight">
-        {exhibit.name}
-      </h2>
-      <div className="flex items-center gap-1.5 text-blue-400 text-xs font-bold">
-        <MapPin size={12} />
-        {exhibit.location}
-      </div>
+    <div className="flex flex-col items-center">
+      <div
+        className="w-80 text-white relative"
+        style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.35))" }}
+      >
+        {/* チケットボディ */}
+        <div
+          className="bg-[#6B1F3A] px-4 pt-5 pb-7.5 rounded-3xl rounded-b-none relative"
+          style={{
+            WebkitMaskImage: "radial-gradient(18px at 50% 0, transparent 98%, black 100%)",
+            maskImage: "radial-gradient(18px at 50% 0, transparent 98%, black 100%)",
+          }}
+        >
+          {/* チケット画像 */}
+          <div className="relative bg-[#8E2D47] rounded-lg overflow-hidden aspect-square mb-5.5">
+            {/* チェッカーパターン */}
+            <div
+              className="absolute inset-0 opacity-55"
+              style={{
+                backgroundImage: `
+                  linear-gradient(45deg, #B54560 25%, transparent 25%),
+                  linear-gradient(-45deg, #B54560 25%, transparent 25%),
+                  linear-gradient(45deg, transparent 75%, #B54560 75%),
+                  linear-gradient(-45deg, transparent 75%, #B54560 75%)
+                `,
+                backgroundSize: "40px 40px",
+                backgroundPosition: "0 0, 0 20px, 20px -20px, -20px 0px",
+              }}
+            />
+            {/* 画像 */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Image
+                src={exhibit.imageUrl}
+                alt={exhibit.name}
+                fill
+                className="object-cover"
+              />
+            </div>
+          </div>
 
-      <div className="bg-white p-4 rounded-2xl shadow-inner">
-        <QRCodeSVG value={url} size={160} />
-      </div>
+          {/* タイトル */}
+          <h2
+            className="text-[30px] font-black leading-5 mb-4 whitespace-pre-line"
+            style={{ letterSpacing: "0.01em" }}
+          >
+            {exhibit.name}
+          </h2>
 
-      <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-        <Clock size={14} className="text-emerald-400" />
-        <p className="text-emerald-100 text-sm font-medium">
-          待ち時間目安: 約{" "}
-          <span className="text-emerald-400 font-bold text-lg">
-            {estimatedTime}
-          </span>{" "}
-          分
-        </p>
-      </div>
+          {/* ロケーション */}
+          <div className="flex items-center gap-1.5 mb-6 text-sm font-medium">
+            <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
+            </svg>
+            {exhibit.location}
+          </div>
 
-      <div className="flex items-center gap-4 text-slate-400 text-xs">
-        <span>
-          現在案内中:{" "}
-          <span className="text-white font-bold">{nowServing}</span> 番
-        </span>
-        <span>
-          待ち人数:{" "}
-          <span className="text-white font-bold">{waitCount}</span> 人
-        </span>
+          {/* グリッド */}
+          <div className="grid grid-cols-2 gap-2.5 mb-5">
+            <div>
+              <div className="text-xs font-medium mb-1.5">現在案内中：</div>
+              <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                {currentNumber === null ? <span className="text-lg">取得中...</span> : currentNumber}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs font-medium mb-1.5">待ち人数：</div>
+              <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[36px] font-bold">
+                {waitCount === null ? (
+                  <span className="text-lg">取得中...</span>
+                ) : (
+                  <>
+                    <span>{waitCount}</span>
+                    <span className="text-sm font-bold ml-1">人</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* フッター */}
+          <p className="text-xs font-medium leading-relaxed text-white/75">
+            QRコードをスキャンして整理券を取得してください
+          </p>
+        </div>
+
+        {/* チケットフッター（波型） */}
+        <div
+          className="h-3.5 bg-[#6B1F3A]"
+          style={{
+            WebkitMaskImage: "radial-gradient(circle 8px at 12px 14px, transparent 99%, #000 100%) center top / 24px 100% repeat-x",
+            maskImage: "radial-gradient(circle 8px at 12px 14px, transparent 99%, #000 100%) center top / 24px 100% repeat-x",
+            marginTop: "-1px",
+          }}
+        />
       </div>
     </div>
   );
@@ -93,27 +155,22 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
 export default function GuidePage() {
   return (
-    <main className="min-h-screen bg-[#0a0f1e] text-slate-100 p-6 flex flex-col items-center justify-center font-sans">
-      {/* 背景装飾 */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/10 rounded-full blur-[100px]" />
-      </div>
+    <main className="min-h-screen bg-[#2E0A1A] text-white p-6 flex flex-col items-center justify-center" style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+      `}</style>
 
-      <div className="w-full max-w-6xl z-10 flex flex-col gap-6 text-center">
+      <div className="w-full max-w-7xl flex flex-col gap-8 text-center">
         <header>
-          <div className="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold tracking-widest uppercase mb-3">
-            精密Lab. 整理券システム
-          </div>
-          <h1 className="text-3xl font-black tracking-tight text-white italic leading-tight">
-            整理券 受け取りはこちら
+          <h1 className="text-3xl font-black tracking-tight mb-2">
+            整理券ガイド
           </h1>
-          <p className="text-slate-400 text-sm mt-2">
-            QRコードをスキャンして整理券を取得してください
+          <p className="text-slate-400 text-sm">
+            各企画の現在の状況
           </p>
         </header>
 
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {EXHIBITS.map((exhibit) => (
             <ExhibitCard key={exhibit.id} exhibit={exhibit} />
           ))}
