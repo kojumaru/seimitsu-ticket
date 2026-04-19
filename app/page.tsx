@@ -5,44 +5,83 @@ import liff from "@line/liff";
 import { db } from "./lib/firebase";
 import { doc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Ticket,
-  Clock,
-  CheckCircle2,
-  BellRing,
-  MapPin,
-  PartyPopper,
-  X,
-} from "lucide-react";
 
 const EXHIBIT_INFO: Record<
   string,
-  { location: string; name: string; timePerPerson: number }
+  {
+    location: string;
+    name: string;
+    timePerPerson: number;
+    illustration: React.ReactNode;
+  }
 > = {
   switch: {
-    name: "せいみつスイッチ",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "せいみつ\nスイッチ",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    illustration: (
+      <svg viewBox="0 0 120 120" width="60%" height="60%">
+        <circle cx="60" cy="60" r="48" fill="#FFFFFF" stroke="#2E0A1A" strokeWidth="2" />
+        <circle cx="60" cy="60" r="34" fill="#6B1F3A" stroke="#2E0A1A" strokeWidth="2" />
+        <circle cx="60" cy="60" r="22" fill="#FFFFFF" stroke="#2E0A1A" strokeWidth="2" />
+        <rect x="56" y="30" width="8" height="20" fill="#2E0A1A" rx="2" />
+      </svg>
+    ),
   },
   soccer: {
-    name: "ロボットサッカー",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "スーパー\nロボットサッカー",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    illustration: (
+      <svg viewBox="0 0 90 80" width="86" height="76">
+        <g fill="#FFFFFF" stroke="#2E0A1A" strokeWidth="1.2" strokeLinejoin="round">
+          <circle cx="45" cy="10" r="3" />
+          <line x1="45" y1="12" x2="45" y2="22" strokeWidth="2" />
+          <rect x="28" y="22" width="34" height="22" rx="3" />
+          <circle cx="37" cy="33" r="2.5" fill="#6B1F3A" stroke="none" />
+          <circle cx="53" cy="33" r="2.5" fill="#6B1F3A" stroke="none" />
+          <rect x="38" y="38" width="14" height="2" fill="#6B1F3A" stroke="none" />
+          <rect x="18" y="46" width="54" height="18" rx="3" />
+          <circle cx="28" cy="68" r="7" />
+          <circle cx="45" cy="68" r="7" />
+          <circle cx="62" cy="68" r="7" />
+          <circle cx="28" cy="68" r="2" fill="#6B1F3A" stroke="none" />
+          <circle cx="45" cy="68" r="2" fill="#6B1F3A" stroke="none" />
+          <circle cx="62" cy="68" r="2" fill="#6B1F3A" stroke="none" />
+        </g>
+      </svg>
+    ),
   },
   chess: {
-    name: "ロボットチェス",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "ロボット\nチェス",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    illustration: (
+      <svg viewBox="0 0 100 100" width="62%" height="62%">
+        <g fill="#FFFFFF" stroke="#2E0A1A" strokeWidth="2" strokeLinejoin="round">
+          <path d="M30 85 L70 85 L72 78 L28 78 Z" />
+          <path d="M32 78 C 32 60, 40 55, 44 50 C 40 48, 38 44, 40 38 C 34 42, 28 42, 24 36 C 30 28, 42 18, 58 20 C 72 22, 78 38, 76 56 C 76 66, 72 74, 68 78 Z" />
+          <circle cx="54" cy="36" r="2" fill="#2E0A1A" stroke="none" />
+        </g>
+      </svg>
+    ),
   },
   arm: {
-    name: "ロボットアーム",
-    location: "工学部14号館 3階 プロジェクト室",
+    name: "ロボット\nアーム",
+    location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
-  },
-  example: {
-    name: "サンプル企画",
-    location: "工学部14号館 ○階 ○○教室",
-    timePerPerson: 5,
+    illustration: (
+      <svg viewBox="0 0 100 100" width="70%" height="70%">
+        <g fill="#FFFFFF" stroke="#2E0A1A" strokeWidth="2" strokeLinejoin="round">
+          <rect x="20" y="80" width="60" height="10" rx="2" />
+          <rect x="36" y="55" width="14" height="30" />
+          <circle cx="43" cy="55" r="6" />
+          <rect x="42" y="30" width="32" height="12" rx="2" transform="rotate(-30 58 36)" />
+          <circle cx="55" cy="48" r="5" />
+          <path d="M72 22 L82 22 L84 30 L70 30 Z" />
+        </g>
+      </svg>
+    ),
   },
 };
 
@@ -50,14 +89,10 @@ export default function TicketPage() {
   const exhibitId =
     typeof window !== "undefined"
       ? (new URLSearchParams(window.location.search).get("exhibitId") ??
-        "seimitsu-switch")
-      : "seimitsu-switch";
+        "switch")
+      : "switch";
 
-  const currentInfo = EXHIBIT_INFO[exhibitId] || {
-    name: exhibitId.toUpperCase(),
-    location: "工学部14号館",
-    timePerPerson: 5,
-  };
+  const currentInfo = EXHIBIT_INFO[exhibitId] || EXHIBIT_INFO.switch;
 
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
   const [nowServing, setNowServing] = useState(0);
@@ -65,7 +100,6 @@ export default function TicketPage() {
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
-  const [showPopup, setShowPopup] = useState(true); // 手動で閉じられるように
   const profileRef = useRef<{ userId: string } | null>(null);
 
   useEffect(() => {
@@ -86,7 +120,7 @@ export default function TicketPage() {
       }
       const profile = await liff.getProfile();
       profileRef.current = { userId: profile.userId };
-      checkMyTicket(profile.userId); // awaitしない：ボタンをすぐ表示
+      checkMyTicket(profile.userId);
       setReady(true);
     };
     initLiff();
@@ -141,199 +175,174 @@ export default function TicketPage() {
     }
   };
 
-  // 判定：自分の番号が呼ばれたか
   const isCalled = ticketNumber !== null && currentNumber >= ticketNumber;
-  const waitCount = ticketNumber
-    ? Math.max(0, ticketNumber - currentNumber)
-    : null;
-
-  const estimatedTime =
-    waitCount !== null ? waitCount * currentInfo.timePerPerson : 0;
 
   return (
-    <main className="h-screen bg-[#0a0f1e] text-slate-100 p-6 flex flex-col items-center justify-center font-sans overflow-hidden">
-      {/* 背景装飾 */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-600/10 rounded-full blur-[100px]" />
-      </div>
+    <main className="min-h-screen bg-[#2E0A1A] text-white p-6 flex items-center justify-center" style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+      `}</style>
 
-      <div className="w-full max-w-sm z-10 flex flex-col gap-6 text-center">
-        <header>
-          <div className="inline-block px-4 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[11px] font-bold tracking-widest uppercase mb-3">
-            精密Lab. 整理券システム
-          </div>
-          <h1 className="text-4xl font-black tracking-tight text-white italic leading-tight mb-2">
-            {currentInfo.name}
-          </h1>
-          <div className="flex items-center justify-center gap-3 text-blue-400 font-bold text-lg">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
-            {currentInfo.location}
-          </div>
-        </header>
-
-        <div className="bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-8 shadow-2xl relative">
-          <div className="flex flex-col items-center border-b border-white/5 pb-6 mb-6">
-            <p className="text-slate-500 text-[11px] font-bold uppercase mb-2 tracking-widest flex items-center gap-2">
-              <Clock size={14} className="text-emerald-400" /> 現在の案内
-            </p>
-            <p className="text-6xl font-mono font-bold text-emerald-400 leading-none">
-              {nowServing}
-              <span className="text-2xl ml-2 font-sans text-slate-500">番</span>
-            </p>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {!ready ? (
-              <div className="py-12 text-center">
-                <div className="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mx-auto" />
-              </div>
-            ) : ticketNumber ? (
-              <motion.div
-                key="ticket"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-              >
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-3xl text-center shadow-lg">
-                  <p className="text-blue-100/60 text-[11px] font-bold uppercase tracking-widest mb-2">
-                    あなたの番号
-                  </p>
-                  <p className="text-7xl font-black text-white tracking-tighter">
-                    {ticketNumber}
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <p className="text-slate-400 text-sm">
-                    あと{" "}
-                    <span className="text-white font-bold text-2xl">
-                      {waitCount}
-                    </span>{" "}
-                    人
-                  </p>
-                  <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 mt-1 mx-auto">
-                    <Clock size={14} className="text-emerald-400" />
-                    <p className="text-emerald-100 text-sm font-medium">
-                      目安: 約{" "}
-                      <span className="text-emerald-400 font-bold text-lg">
-                        {estimatedTime}
-                      </span>{" "}
-                      分
-                    </p>
-                  </div>
-                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-3 text-left">
-                    <BellRing
-                      className="text-blue-400 shrink-0 mt-0.5"
-                      size={16}
-                    />
-                    <p className="text-blue-200 text-xs leading-relaxed font-medium">
-                      順番になりましたら
-                      <span className="text-white font-bold">
-                        精密Lab.公式LINEから
-                      </span>
-                      通知します！
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <div className="py-4 text-center space-y-4">
-                <p className="text-slate-400 text-sm">
-                  あと{" "}
-                  <span className="text-white font-bold text-2xl">
-                    {Math.max(0, nowServing - currentNumber)}
-                  </span>{" "}
-                  人
-                </p>
-                <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 mx-auto">
-                  <Clock size={14} className="text-emerald-400" />
-                  <p className="text-emerald-100 text-sm font-medium">
-                    現在の待ち時間: 約{" "}
-                    <span className="text-emerald-400 font-bold text-lg">
-                      {Math.max(0, nowServing - currentNumber) * currentInfo.timePerPerson}
-                    </span>{" "}
-                    分
-                  </p>
-                </div>
-                {issueError && (
-                  <p className="text-red-400 text-xs break-all">{issueError}</p>
-                )}
-                <button
-                  onClick={issueTicket}
-                  disabled={isIssuing}
-                  className="w-full bg-white text-slate-900 py-6 rounded-[1.5rem] text-xl font-black transition-all active:scale-95 shadow-xl disabled:opacity-50"
-                >
-                  {isIssuing ? "発行中..." : "整理券を受け取る"}
-                </button>
-              </div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* 🚀 呼び出し中ポップアップ */}
-      <AnimatePresence>
-        {isCalled && showPopup && (
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-md"
+      <div className="w-full max-w-xs">
+        <div className="relative" style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.35))" }}>
+          {/* チケットボディ */}
+          <div
+            className="bg-[#6B1F3A] px-4 pt-5 pb-7.5 rounded-3xl rounded-b-none relative"
+            style={{
+              WebkitMaskImage: "radial-gradient(18px at 50% 0, transparent 98%, black 100%)",
+              maskImage: "radial-gradient(18px at 50% 0, transparent 98%, black 100%)",
+            }}
           >
-            <div className="relative w-full max-w-sm bg-gradient-to-b from-emerald-500 to-emerald-700 rounded-[3rem] p-1 shadow-[0_0_50px_rgba(16,185,129,0.4)]">
-              <div className="bg-slate-900 rounded-[2.8rem] p-8 flex flex-col items-center text-center overflow-hidden relative">
-                {/* 装飾用のアニメーション光 */}
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="absolute top-[-20%] w-64 h-64 bg-emerald-500/20 rounded-full blur-[60px]"
-                />
-
-                <div className="relative mb-6">
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                  >
-                    <PartyPopper size={64} className="text-emerald-400" />
-                  </motion.div>
-                </div>
-
-                <h2 className="text-2xl font-black text-white mb-4 leading-tight">
-                  お待たせしました！
-                  <br />
-                  <span className="text-emerald-400">
-                    {currentInfo.name}
-                  </span>{" "}
-                  へお越しださい！
-                </h2>
-
-                <div className="w-full bg-white/5 rounded-3xl p-5 mb-8 border border-white/10">
-                  <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-2 flex items-center justify-center gap-1">
-                    <MapPin size={12} /> Location
-                  </p>
-                  <p className="text-white font-bold leading-relaxed">
-                    {currentInfo.location}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setShowPopup(false)}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 py-4 rounded-2xl font-black text-lg shadow-lg shadow-emerald-900/20 transition-all active:scale-95"
-                >
-                  閉じる
-                </button>
-
-                <button
-                  onClick={() => setShowPopup(false)}
-                  className="mt-6 text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  <X size={24} />
-                </button>
+            {/* チケット画像 */}
+            <div className="relative bg-[#8E2D47] rounded-lg overflow-hidden aspect-square mb-5.5">
+              {/* チェッカーパターン */}
+              <div
+                className="absolute inset-0 opacity-55"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(45deg, #B54560 25%, transparent 25%),
+                    linear-gradient(-45deg, #B54560 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #B54560 75%),
+                    linear-gradient(-45deg, transparent 75%, #B54560 75%)
+                  `,
+                  backgroundSize: "40px 40px",
+                  backgroundPosition: "0 0, 0 20px, 20px -20px, -20px 0px",
+                }}
+              />
+              {/* フィールドライン */}
+              {exhibitId === "soccer" && (
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <g fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.6">
+                    <rect x="3" y="3" width="94" height="94" />
+                    <line x1="50" y1="3" x2="50" y2="97" />
+                    <circle cx="50" cy="50" r="12" />
+                    <rect x="3" y="30" width="16" height="40" />
+                    <rect x="81" y="30" width="16" height="40" />
+                  </g>
+                </svg>
+              )}
+              {/* イラスト */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                {currentInfo.illustration}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+            {/* タイトル */}
+            <h2 className="text-[30px] font-black leading-5 mb-2.5 whitespace-pre-line" style={{ letterSpacing: "0.01em" }}>
+              {currentInfo.name}
+            </h2>
+
+            {/* ロケーション */}
+            <div className="flex items-center gap-1.5 mb-4.5 text-xs font-medium">
+              <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+              </svg>
+              {currentInfo.location}
+            </div>
+
+            {/* グリッド */}
+            <div className="grid grid-cols-2 gap-2.5 mb-5">
+              <div>
+                <div className="text-xs font-medium mb-1.5">現在案内中：</div>
+                <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                  <span className="flex gap-2.5 text-[30px]">
+                    <span>{nowServing}</span>
+                    <span>{nowServing + 1}</span>
+                  </span>
+                </div>
+              </div>
+              {!ready ? (
+                <div>
+                  <div className="text-xs font-medium mb-1.5 text-white/75">—</div>
+                  <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                    —
+                  </div>
+                </div>
+              ) : ticketNumber ? (
+                <div>
+                  <div className="text-xs font-medium mb-1.5">あなたの番号：</div>
+                  <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                    {ticketNumber}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="text-xs font-medium mb-1.5">待ち人数：</div>
+                  <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center">
+                    <span className="text-[36px] font-bold">{Math.max(0, nowServing - currentNumber)}</span>
+                    <span className="text-sm font-bold ml-1">人</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* コンテンツ */}
+            {isCalled ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="called"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-4"
+                >
+                  <div className="bg-[#FFE08A] text-[#4F1128] py-3.5 px-3.5 rounded text-center font-black text-lg" style={{ letterSpacing: "0.04em" }}>
+                    順番になりました！
+                  </div>
+                  <p className="text-xs font-medium leading-relaxed text-white/75">
+                    受付までお越しください。お待ちしております！
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            ) : ticketNumber ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="issued"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-3"
+                >
+                  <p className="text-xs font-medium leading-relaxed text-white/75">
+                    順番になりましたら精密Lab 公式LINEから通知いたします！
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            ) : (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key="not-issued"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-2"
+                >
+                  {issueError && (
+                    <p className="text-xs text-[#FFE08A] break-words">
+                      {issueError}
+                    </p>
+                  )}
+                  <button
+                    onClick={issueTicket}
+                    disabled={isIssuing}
+                    className="w-full bg-white text-[#6B1F3A] py-4 rounded text-lg font-bold transition-transform active:scale-95 disabled:opacity-50"
+                    style={{ letterSpacing: "0.04em" }}
+                  >
+                    {isIssuing ? "発行中..." : "整理券を受け取る"}
+                  </button>
+                </motion.div>
+              </AnimatePresence>
+            )}
+          </div>
+
+          {/* チケットフッター（波状） */}
+          <div
+            className="h-3.5 bg-[#6B1F3A]"
+            style={{
+              WebkitMaskImage: "radial-gradient(circle 8px at 12px 14px, transparent 99%, black 100%) center top / 24px 100% repeat-x",
+              maskImage: "radial-gradient(circle 8px at 12px 14px, transparent 99%, black 100%) center top / 24px 100% repeat-x",
+              marginTop: "-1px",
+            }}
+          />
+        </div>
+      </div>
     </main>
   );
 }
