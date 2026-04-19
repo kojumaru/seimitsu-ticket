@@ -33,11 +33,11 @@ export default function AdminPage() {
     if (loading) return; // 処理中はガード
     setError(null);
 
-    const newNumber = nowServing + 1;
+    const newCurrentNumber = currentNumber + 1;
 
-    // エラーチェック：currentNumber >= newNumber の場合
-    if (currentNumber >= newNumber) {
-      setError(`エラー：呼び出し済みの番号です。現在案内中: ${currentNumber}番、配布済み: ${nowServing}番`);
+    // エラーチェック：newCurrentNumber > nowServing の場合
+    if (newCurrentNumber > nowServing) {
+      setError(`エラー：まだ整理券が発行されていません。現在案内中: ${currentNumber}番、配布済み: ${nowServing}番`);
       return;
     }
 
@@ -46,12 +46,12 @@ export default function AdminPage() {
     try {
       const ticketRef = doc(db, "tickets", exhibitId);
 
-      console.log(`${exhibitId} の呼び出しを ${newNumber} に更新します...`);
+      console.log(`${exhibitId} の現在案内中を ${newCurrentNumber} に更新します...`);
 
-      // updateDocではなくsetDoc({merge: true})にすると、ドキュメントがなくても作成してくれます
-      await setDoc(ticketRef, { nowServing: newNumber }, { merge: true });
+      // currentNumber を更新
+      await setDoc(ticketRef, { currentNumber: newCurrentNumber }, { merge: true });
 
-      const activeRef = doc(db, "active_tickets", `${exhibitId}_${newNumber}`);
+      const activeRef = doc(db, "active_tickets", `${exhibitId}_${newCurrentNumber}`);
       const activeSnap = await getDoc(activeRef);
 
       if (!activeSnap.exists()) {
@@ -64,7 +64,7 @@ export default function AdminPage() {
 
       const userId = activeSnap.data().userId;
 
-      const result = await notifyUser(userId, newNumber, exhibitId);
+      const result = await notifyUser(userId, newCurrentNumber, exhibitId);
 
       if (result.ok) {
         console.log("LINE通知に成功しました！");
@@ -90,25 +90,19 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* 現在案内中と配布済みを並べて表示 */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <div className="bg-slate-900 p-8 rounded-2xl border border-white/10">
-          <p className="text-slate-500 text-xs mb-2 uppercase tracking-widest">
-            Currently Serving
-          </p>
-          <div className="text-5xl font-mono font-bold text-blue-400">
-            {currentNumber} <span className="text-lg text-slate-400">番</span>
+      {/* 現在案内中（メイン） */}
+      <div className="mb-8">
+        <p className="text-slate-400 text-sm mb-3 uppercase tracking-widest">
+          Currently Serving
+        </p>
+        <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-12 rounded-3xl border-2 border-blue-400 shadow-2xl">
+          <div className="text-8xl font-mono font-bold text-white">
+            {currentNumber} <span className="text-3xl text-blue-200">番</span>
           </div>
         </div>
-
-        <div className="bg-slate-900 p-8 rounded-2xl border border-white/10">
-          <p className="text-slate-500 text-xs mb-2 uppercase tracking-widest">
-            Now Serving
-          </p>
-          <div className="text-5xl font-mono font-bold text-red-500">
-            {nowServing} <span className="text-lg text-slate-400">番</span>
-          </div>
-        </div>
+        <p className="text-slate-500 text-xs mt-4 uppercase tracking-widest">
+          配布済み：{nowServing}番
+        </p>
       </div>
 
       <button
