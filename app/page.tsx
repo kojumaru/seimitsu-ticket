@@ -448,15 +448,15 @@ export default function TicketPage() {
             <circle cx="0" cy="40" r="40" fill="#2E0A1A" />
 
             {/* 小さい半円 9個（弦が底辺、弧がチケット内側） */}
-            <circle cx="70" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="95" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="120" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="145" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="58" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="86" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="114" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="142" cy="40" r="10" fill="#2E0A1A" />
             <circle cx="170" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="195" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="220" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="245" cy="40" r="10" fill="#2E0A1A" />
-            <circle cx="270" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="198" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="226" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="254" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="282" cy="40" r="10" fill="#2E0A1A" />
 
             {/* 右下の大きい四分円（弦が底辺） */}
             <circle cx="340" cy="40" r="40" fill="#2E0A1A" />
