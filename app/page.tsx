@@ -432,21 +432,33 @@ export default function TicketPage() {
             )}
           </div>
 
-          {/* チケットフッター（スカロップ） */}
-          <div
-            className="h-10 bg-[#6B1F3A]"
-            style={{
-              WebkitMaskImage: "radial-gradient(circle 20px at 50% 0px, transparent 99%, black 100%)",
-              WebkitMaskSize: "40px 100%",
-              WebkitMaskPosition: "0 0",
-              WebkitMaskRepeat: "repeat-x",
-              maskImage: "radial-gradient(circle 20px at 50% 0px, transparent 99%, black 100%)",
-              maskSize: "40px 100%",
-              maskPosition: "0 0",
-              maskRepeat: "repeat-x",
-              marginTop: "-1px",
-            }}
-          />
+          {/* チケットフッター */}
+          <svg
+            className="w-full h-10"
+            viewBox="0 0 340 40"
+            preserveAspectRatio="none"
+            style={{ display: "block" }}
+          >
+            {/* 背景 */}
+            <rect width="340" height="40" fill="#6B1F3A" />
+
+            {/* 左上の大きい四分円を切り抜き */}
+            <circle cx="0" cy="0" r="30" fill="#2E0A1A" />
+
+            {/* 小さい半円 9個を上から切り抜き（半径10、弦が下） */}
+            <circle cx="20" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="60" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="100" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="140" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="170" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="200" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="240" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="280" cy="0" r="10" fill="#2E0A1A" />
+            <circle cx="320" cy="0" r="10" fill="#2E0A1A" />
+
+            {/* 右上の大きい四分円を切り抜き */}
+            <circle cx="340" cy="0" r="30" fill="#2E0A1A" />
+          </svg>
         </div>
       </div>
     </main>
