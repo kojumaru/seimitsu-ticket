@@ -445,16 +445,16 @@ export default function TicketPage() {
             <rect width="340" height="40" fill="#6B1F3A" />
 
             {/* 左下の大きい四分円（弦が底辺） */}
-            <circle cx="0" cy="45" r="30" fill="#2E0A1A" />
+            <circle cx="0" cy="40" r="30" fill="#2E0A1A" />
 
             {/* 小さい半円 9個（弦が底辺、弧がチケット内側） */}
 
-            <circle cx="130" cy="45" r="10" fill="#2E0A1A" />
-            <circle cx="170" cy="45" r="10" fill="#2E0A1A" />
-            <circle cx="210" cy="45" r="10" fill="#2E0A1A" />
+            <circle cx="130" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="170" cy="40" r="10" fill="#2E0A1A" />
+            <circle cx="210" cy="40" r="10" fill="#2E0A1A" />
 
             {/* 右下の大きい四分円（弦が底辺） */}
-            <circle cx="340" cy="35" r="30" fill="#2E0A1A" />
+            <circle cx="340" cy="40" r="30" fill="#2E0A1A" />
           </svg>
         </div>
       </div>
