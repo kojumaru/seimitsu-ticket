@@ -337,7 +337,7 @@ export default function TicketPage() {
               <div>
                 <div className="text-xs font-medium mb-1.5">現在案内中：</div>
                 <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                  {nowServing === null ? "取得中..." : nowServing}
+                  {currentNumber === null ? "取得中..." : currentNumber}
                 </div>
               </div>
               {!ready ? (

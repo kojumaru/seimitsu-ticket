@@ -13,7 +13,9 @@ export default function AdminPage() {
       : "kikaku-a";
 
   const [nowServing, setNowServing] = useState(0);
+  const [currentNumber, setCurrentNumber] = useState(0);
   const [loading, setLoading] = useState(false); // 連打防止用
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!exhibitId) return;
@@ -21,6 +23,7 @@ export default function AdminPage() {
     const unsubscribe = onSnapshot(ticketRef, (snap) => {
       if (snap.exists()) {
         setNowServing(snap.data().nowServing || 0);
+        setCurrentNumber(snap.data().currentNumber || 0);
       }
     });
     return () => unsubscribe();
@@ -28,11 +31,20 @@ export default function AdminPage() {
 
   const nextNumber = async () => {
     if (loading) return; // 処理中はガード
+    setError(null);
+
+    const newNumber = nowServing + 1;
+
+    // エラーチェック：currentNumber >= newNumber の場合
+    if (currentNumber >= newNumber) {
+      setError(`エラー：呼び出し済みの番号です。現在案内中: ${currentNumber}番、配布済み: ${nowServing}番`);
+      return;
+    }
+
     setLoading(true);
 
     try {
       const ticketRef = doc(db, "tickets", exhibitId);
-      const newNumber = nowServing + 1;
 
       console.log(`${exhibitId} の呼び出しを ${newNumber} に更新します...`);
 
@@ -71,12 +83,31 @@ export default function AdminPage() {
     <main className="p-8 bg-black text-white min-h-screen text-center flex flex-col items-center justify-center">
       <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitId}）</h1>
 
-      <div className="bg-slate-900 p-10 rounded-3xl border border-white/10 mb-8">
-        <p className="text-slate-500 text-sm mb-2 uppercase tracking-widest">
-          Now Serving
-        </p>
-        <div className="text-7xl font-mono font-bold text-red-500">
-          {nowServing} <span className="text-2xl text-slate-400">番</span>
+      {/* エラー表示 */}
+      {error && (
+        <div className="bg-red-900/30 border-2 border-red-500 text-red-300 p-4 rounded-xl mb-6 max-w-md">
+          {error}
+        </div>
+      )}
+
+      {/* 現在案内中と配布済みを並べて表示 */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="bg-slate-900 p-8 rounded-2xl border border-white/10">
+          <p className="text-slate-500 text-xs mb-2 uppercase tracking-widest">
+            Currently Serving
+          </p>
+          <div className="text-5xl font-mono font-bold text-blue-400">
+            {currentNumber} <span className="text-lg text-slate-400">番</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 p-8 rounded-2xl border border-white/10">
+          <p className="text-slate-500 text-xs mb-2 uppercase tracking-widest">
+            Now Serving
+          </p>
+          <div className="text-5xl font-mono font-bold text-red-500">
+            {nowServing} <span className="text-lg text-slate-400">番</span>
+          </div>
         </div>
       </div>
 
