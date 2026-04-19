@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import liff from "@line/liff";
-import { db } from "./lib/firebase";
+import { db, auth } from "./lib/firebase";
 import { doc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EXHIBIT_INFO: Record<
@@ -167,6 +168,9 @@ export default function TicketPage() {
 
     const initLiff = async () => {
       await liff.init({ liffId: "2009242984-XYO590kr" });
+      // Firebase 匿名認証
+      await signInAnonymously(auth);
+
       if (!liff.isLoggedIn()) {
         liff.login();
         return;
