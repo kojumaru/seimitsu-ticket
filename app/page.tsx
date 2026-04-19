@@ -215,11 +215,7 @@ export default function TicketPage() {
       await runTransaction(db, async (transaction) => {
         const snap = await transaction.get(ticketRef);
         newNumber = (snap.data()?.nowServing || 0) + 1;
-        transaction.set(
-          ticketRef,
-          { nowServing: newNumber },
-          { merge: true },
-        );
+        transaction.set(ticketRef, { nowServing: newNumber }, { merge: true });
         transaction.set(doc(db, "users", userId, "myTickets", exhibitId), {
           ticketNumber: newNumber,
           exhibitName: exhibitId,
@@ -243,7 +239,10 @@ export default function TicketPage() {
     }
   };
 
-  const isCalled = ticketNumber !== null && currentNumber !== null && currentNumber >= ticketNumber;
+  const isCalled =
+    ticketNumber !== null &&
+    currentNumber !== null &&
+    currentNumber >= ticketNumber;
 
   // 呼び出された時刻を記録
   useEffect(() => {
@@ -335,9 +334,9 @@ export default function TicketPage() {
             </h2>
 
             {/* ロケーション */}
-            <div className="flex items-center gap-1.5 mb-6 text-xs font-medium">
+            <div className="flex items-center gap-1.5 mb-6 text-sm font-medium">
               <svg
-                className="w-3.5 h-3.5 flex-shrink-0"
+                className="w-4 h-4 flex-shrink-0"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
@@ -351,7 +350,11 @@ export default function TicketPage() {
               <div>
                 <div className="text-xs font-medium mb-1.5">現在案内中：</div>
                 <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                  {currentNumber === null ? "取得中..." : currentNumber}
+                  {currentNumber === null ? (
+                    <span className="text-lg">取得中...</span>
+                  ) : (
+                    currentNumber
+                  )}
                 </div>
               </div>
               {!ready ? (
@@ -377,7 +380,7 @@ export default function TicketPage() {
                   <div className="text-xs font-medium mb-1.5">待ち人数：</div>
                   <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[36px] font-bold">
                     {nowServing === null || currentNumber === null ? (
-                      "取得中..."
+                      <span className="text-lg">取得中...</span>
                     ) : (
                       <>
                         <span>{Math.max(0, nowServing - currentNumber)}</span>
@@ -437,6 +440,10 @@ export default function TicketPage() {
                 >
                   <p className="text-xs font-medium leading-relaxed text-white/75">
                     順番になりましたら精密Lab 公式LINEから通知いたします！
+                    <br />
+                    ※お呼び出しから1時間以内にご来場されなかった場合、
+                    <br />
+                    整理券は無効になる場合があります。ご注意ください。
                   </p>
                 </motion.div>
               </AnimatePresence>
