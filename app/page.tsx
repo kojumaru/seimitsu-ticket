@@ -179,12 +179,19 @@ export default function TicketPage() {
 
       // 認証後にリスナーを設定
       const ticketRef = doc(db, "tickets", exhibitId);
-      const unsubscribe = onSnapshot(ticketRef, (snap) => {
-        if (snap.exists()) {
-          setNowServing(snap.data().nowServing ?? null);
-          setCurrentNumber(snap.data().currentNumber ?? null);
+      const unsubscribe = onSnapshot(
+        ticketRef,
+        (snap) => {
+          console.log("onSnapshot update:", snap.data());
+          if (snap.exists()) {
+            setNowServing(snap.data().nowServing ?? null);
+            setCurrentNumber(snap.data().currentNumber ?? null);
+          }
+        },
+        (error) => {
+          console.error("onSnapshot error:", error);
         }
-      });
+      );
       return unsubscribe;
     };
 
