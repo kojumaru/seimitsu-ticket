@@ -307,7 +307,7 @@ export default function TicketPage() {
             </h2>
 
             {/* ロケーション */}
-            <div className="flex items-center gap-1.5 mb-4.5 text-xs font-medium">
+            <div className="flex items-center gap-1.5 mb-6 text-xs font-medium">
               <svg
                 className="w-3.5 h-3.5 flex-shrink-0"
                 viewBox="0 0 24 24"
@@ -385,7 +385,8 @@ export default function TicketPage() {
                         })}
                       </p>
                       <p className="text-sm font-black leading-relaxed text-[#FFE08A]">
-                        【注意】１時間以内に企画場所へお並びください。大幅に過ぎた場合、失効扱いとします。
+                        【注意】<br />
+                        １時間以内に企画場所へお並びください。大幅に過ぎた場合、失効扱いとします。
                       </p>
                     </div>
                   )}
@@ -430,14 +431,14 @@ export default function TicketPage() {
             )}
           </div>
 
-          {/* チケットフッター（波状） */}
+          {/* チケットフッター（スカロップ） */}
           <div
-            className="h-3.5 bg-[#6B1F3A]"
+            className="h-8 bg-[#6B1F3A]"
             style={{
               WebkitMaskImage:
-                "radial-gradient(circle 8px at 12px 14px, transparent 99%, black 100%) center top / 24px 100% repeat-x",
+                "radial-gradient(circle 20px at 20px 20px, transparent 99%, black 100%) center top / 40px 100% repeat-x",
               maskImage:
-                "radial-gradient(circle 8px at 12px 14px, transparent 99%, black 100%) center top / 24px 100% repeat-x",
+                "radial-gradient(circle 20px at 20px 20px, transparent 99%, black 100%) center top / 40px 100% repeat-x",
               marginTop: "-1px",
             }}
           />
