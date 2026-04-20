@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "../lib/firebase";
+import { db, auth } from "../lib/firebase";
 import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
+import { signInAnonymously } from "firebase/auth";
 import { notifyUser } from "../actions/notify";
 
 export default function AdminPage() {
@@ -19,14 +20,36 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!exhibitId) return;
-    const ticketRef = doc(db, "tickets", exhibitId);
-    const unsubscribe = onSnapshot(ticketRef, (snap) => {
-      if (snap.exists()) {
-        setNowServing(snap.data().nowServing || 0);
-        setCurrentNumber(snap.data().currentNumber || 0);
+
+    const initializeData = async () => {
+      // Firebase 匿名認証
+      await signInAnonymously(auth);
+
+      // 認証後にリスナーを設定
+      const ticketRef = doc(db, "tickets", exhibitId);
+      const unsubscribe = onSnapshot(
+        ticketRef,
+        (snap) => {
+          if (snap.exists()) {
+            setNowServing(snap.data().nowServing || 0);
+            setCurrentNumber(snap.data().currentNumber || 0);
+          }
+        },
+        (error) => {
+          console.error("onSnapshot error:", error);
+        }
+      );
+      return unsubscribe;
+    };
+
+    let unsubscribePromise: Promise<any> | null = null;
+    unsubscribePromise = initializeData();
+
+    return () => {
+      if (unsubscribePromise) {
+        unsubscribePromise.then((unsubscribe) => unsubscribe?.());
       }
-    });
-    return () => unsubscribe();
+    };
   }, [exhibitId]);
 
   const nextNumber = async () => {
