@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import Image from "next/image";
+import { QRCodeSVG } from "qrcode.react";
 
 const EXHIBITS = [
   {
@@ -52,9 +53,10 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
   }, [exhibit.id]);
 
   const waitCount = (nowServing !== null && currentNumber !== null) ? Math.max(0, nowServing - currentNumber) : null;
+  const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center gap-4">
       <div
         className="w-80 text-white relative"
         style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.35))" }}
@@ -148,6 +150,11 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
             marginTop: "-1px",
           }}
         />
+      </div>
+
+      {/* QRコード */}
+      <div className="bg-white p-3 rounded-lg">
+        <QRCodeSVG value={url} size={120} />
       </div>
     </div>
   );
