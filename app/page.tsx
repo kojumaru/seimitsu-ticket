@@ -256,6 +256,13 @@ export default function TicketPage() {
     currentNumber !== null &&
     currentNumber >= ticketNumber;
 
+  // 呼び出された時刻を記録（Firestoreから取得できない場合のフォールバック）
+  useEffect(() => {
+    if (isCalled && !calledAt) {
+      setCalledAt(new Date());
+    }
+  }, [isCalled, calledAt]);
+
   return (
     <main
       className="min-h-screen bg-[#2E0A1A] text-white p-6 flex items-center justify-center"
