@@ -6,6 +6,7 @@ import { db, auth } from "./lib/firebase";
 import { doc, getDoc, onSnapshot, runTransaction } from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 import { motion, AnimatePresence } from "framer-motion";
+import { notifyIssueTicket } from "./actions/notify";
 
 const EXHIBIT_INFO: Record<
   string,
@@ -243,6 +244,9 @@ export default function TicketPage() {
         );
       });
       setTicketNumber(newNumber);
+
+      // 整理券取得通知を送信
+      await notifyIssueTicket(userId, exhibitId);
     } catch (e) {
       console.error("issueTicket error:", e);
       setIssueError(e instanceof Error ? e.message : String(e));

@@ -1,6 +1,6 @@
 "use server";
 
-import { sendLineNotification } from "../lib/proxy";
+import { sendLineNotification, sendLineIssueNotification } from "../lib/proxy";
 
 export async function notifyUser(
   userId: string,
@@ -8,4 +8,11 @@ export async function notifyUser(
   exhibitId: string,
 ) {
   return await sendLineNotification(userId, ticketNumber, exhibitId);
+}
+
+export async function notifyIssueTicket(
+  userId: string,
+  exhibitId: string,
+) {
+  return await sendLineIssueNotification(userId, exhibitId);
 }
