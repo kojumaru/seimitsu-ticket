@@ -241,7 +241,7 @@ export default function TicketPage() {
             }}
           >
             {/* チケット画像 */}
-            <div className="relative rounded-lg overflow-hidden aspect-square mb-5.5">
+            <div className="relative bg-[#8E2D47] rounded-lg overflow-hidden aspect-video mb-2">
               {/* イラスト */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <img
