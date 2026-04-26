@@ -256,26 +256,6 @@ export default function TicketPage() {
                   backgroundPosition: "0 0, 0 20px, 20px -20px, -20px 0px",
                 }}
               />
-              {/* フィールドライン */}
-              {exhibitId === "soccer" && (
-                <svg
-                  className="absolute inset-0 w-full h-full"
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="none"
-                >
-                  <g
-                    fill="none"
-                    stroke="rgba(255,255,255,0.5)"
-                    strokeWidth="0.6"
-                  >
-                    <rect x="3" y="3" width="94" height="94" />
-                    <line x1="50" y1="3" x2="50" y2="97" />
-                    <circle cx="50" cy="50" r="12" />
-                    <rect x="3" y="30" width="16" height="40" />
-                    <rect x="81" y="30" width="16" height="40" />
-                  </g>
-                </svg>
-              )}
               {/* イラスト */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <img
