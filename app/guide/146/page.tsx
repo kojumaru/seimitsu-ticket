@@ -9,16 +9,16 @@ import { QRCodeSVG } from "qrcode.react";
 const EXHIBITS = [
   {
     id: "room",
-    name: "ルーム",
-    location: "14号館 6階",
+    name: "現実拡張空間",
+    location: "14号館 3階146教室",
     timePerPerson: 5,
     imageUrl: "/images/room.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   {
     id: "truck",
-    name: "トラック",
-    location: "14号館 6階",
+    name: "ジャングル・スコープ",
+    location: "14号館 3階146教室",
     timePerPerson: 5,
     imageUrl: "/images/truck.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
@@ -225,12 +225,10 @@ export default function GuidePage() {
 
       {/* カード一覧 */}
       <div className="flex-1 px-6 -mt-5 flex flex-col items-center justify-center">
-        <div className="w-full max-w-7xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-            {EXHIBITS.map((exhibit) => (
-              <ExhibitCard key={exhibit.id} exhibit={exhibit} />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-items-center">
+          {EXHIBITS.map((exhibit) => (
+            <ExhibitCard key={exhibit.id} exhibit={exhibit} />
+          ))}
         </div>
       </div>
     </main>
