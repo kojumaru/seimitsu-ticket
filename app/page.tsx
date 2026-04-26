@@ -311,7 +311,7 @@ export default function TicketPage() {
               <div className="flex flex-col gap-2.5">
                 <div>
                   <div className="text-xs font-medium mb-1.5">現在案内中：</div>
-                  <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                  <div className="bg-[#4F1128] rounded h-20 flex items-center justify-center text-[42px] font-bold leading-none">
                     {currentNumber === null ? (
                       <span className="text-lg">取得中...</span>
                     ) : (
@@ -325,7 +325,7 @@ export default function TicketPage() {
                 </div>
                 <div>
                   <div className="text-xs font-medium mb-1.5">待ち時間目安：</div>
-                  <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                  <div className="bg-[#4F1128] rounded h-20 flex items-center justify-center text-[42px] font-bold leading-none">
                     {currentNumber === null ? (
                       <span className="text-lg">取得中</span>
                     ) : (
