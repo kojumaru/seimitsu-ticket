@@ -182,7 +182,9 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
         {distributionEnabled === false ? (
           <div className="bg-[#8E2D47] rounded-xl px-6 py-4 text-center w-full">
             <p className="text-white text-xl font-black">案内中</p>
-            <p className="text-white/80 text-xs mt-1">本展示は現在案内中です</p>
+            <p className="text-white/80 text-xs mt-1">
+              現在整理券不要で案内中です
+            </p>
           </div>
         ) : (
           <>
@@ -218,7 +220,7 @@ export default function GuidePage() {
               className="text-5xl font-black text-white mb-3"
               style={{ letterSpacing: "0.05em" }}
             >
-              整理券一覧
+              整理券配布中
             </h1>
             <p className="text-2xl font-bold text-white">
               カメラでQRコードをスキャンしてゲットしよう！
