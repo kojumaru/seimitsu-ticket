@@ -233,14 +233,14 @@ export default function GuidePage() {
           {/* 右側 */}
           <div className="flex-1 text-right">
             <p className="text-xs text-white leading-relaxed text-justify whitespace-pre-wrap font-bold">
-              {`【整理券発行に関するご案内】\n本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。\n  使用目的：順番待ちの管理及び公式LINEからの呼び出し通知のみに使用します。\n  情報の破棄：五月祭終了後、全てのデータは速やかに完全消去されます。\n  その他：五月祭以外の目的の利用や第三者への提供は一切行いません。\n本システムの利用には上記への同意が必須となります。`}
+              {`【整理券発行に関するご案内】\n本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。\n   使用目的：順番待ちの管理及び公式LINEからの呼び出し通知に使用します。\n   情報の破棄：五月祭終了後、全てのデータは速やかに完全消去されます。\n   その他：五月祭以外の目的の利用や第三者への提供は一切行いません。\n本システムの利用には上記への同意が必須となります。`}
             </p>
           </div>
         </div>
       </div>
 
       {/* カード一覧 */}
-      <div className="flex-1 px-6 py-1 flex flex-col items-center justify-center">
+      <div className="flex-1 px-6 -mt-4 flex flex-col items-center justify-center">
         <div className="w-full max-w-7xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {EXHIBITS.map((exhibit) => (
