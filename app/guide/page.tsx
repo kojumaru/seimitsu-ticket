@@ -192,7 +192,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       />
 
       {/* チケット下部（クリーム色） */}
-      <div className="bg-[#F2E7E0] px-4 py-4 flex flex-col items-center gap-2 rounded-b-3xl">
+      <div className="bg-[#F2E7E0] px-4 py-2 flex flex-col items-center gap-1 rounded-b-3xl">
         <div className="bg-white p-2.5 rounded-lg">
           <QRCodeSVG value={url} size={100} />
         </div>
@@ -234,6 +234,7 @@ export default function GuidePage() {
           <div className="flex-1 text-right">
             <p className="text-xs text-white leading-relaxed text-justify">
               【整理券発行に関するご案内】
+              <br />
               本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。
               使用目的：順番待ちの管理及び公式LINEからの呼び出し通知のみに使用します。
               情報の破棄：五月祭終了後、全てのデータは速やかに完全消去されます。
