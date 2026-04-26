@@ -68,7 +68,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       style={{ filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.25))" }}
     >
       {/* チケット上部（ダークレッド） */}
-      <div className="bg-[#6B1F3A] px-4 pt-4 pb-6 relative overflow-hidden rounded-t-3xl">
+      <div className="bg-[#6B1F3A] px-4 pt-4 pb-4 relative overflow-hidden rounded-t-3xl">
         {/* 側面ノッチ（切り込み）*/}
         <div
           className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
