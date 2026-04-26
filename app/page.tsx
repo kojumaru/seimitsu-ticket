@@ -242,20 +242,6 @@ export default function TicketPage() {
           >
             {/* チケット画像 */}
             <div className="relative bg-[#8E2D47] rounded-lg overflow-hidden aspect-square mb-5.5">
-              {/* チェッカーパターン */}
-              <div
-                className="absolute inset-0 opacity-55"
-                style={{
-                  backgroundImage: `
-                    linear-gradient(45deg, #B54560 25%, transparent 25%),
-                    linear-gradient(-45deg, #B54560 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, #B54560 75%),
-                    linear-gradient(-45deg, transparent 75%, #B54560 75%)
-                  `,
-                  backgroundSize: "40px 40px",
-                  backgroundPosition: "0 0, 0 20px, 20px -20px, -20px 0px",
-                }}
-              />
               {/* イラスト */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <img
