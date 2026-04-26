@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db, auth } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 import { notifyUser } from "../actions/notify";
 
@@ -103,7 +103,7 @@ export default function AdminPage() {
         ticketRef,
         {
           currentNumber: newCurrentNumber,
-          currentNumber_called_at: new Date(),
+          currentNumber_called_at: serverTimestamp(),
         },
         { merge: true },
       );
@@ -153,17 +153,51 @@ export default function AdminPage() {
         console.log(`${exhibitId} の配布モードを ON に設定しました`);
       } else {
         // OFF にして全配布済みを呼び出し済みに
+        // 現在の currentNumber から nowServing までの全員に通知を送る
+        const oldCurrentNumber = currentNumber;
+
         await setDoc(
           ticketRef,
           {
             distributionEnabled: false,
             currentNumber: nowServing,
+            currentNumber_called_at: serverTimestamp(),
           },
           { merge: true },
         );
         console.log(
           `${exhibitId} の配布モードを OFF に設定し、currentNumber を ${nowServing} に更新しました`,
         );
+
+        // oldCurrentNumber + 1 から nowServing までの人に通知を送る
+        for (let ticketNum = oldCurrentNumber + 1; ticketNum <= nowServing; ticketNum++) {
+          try {
+            const activeRef = doc(
+              db,
+              "active_tickets",
+              `${exhibitId}_${ticketNum}`,
+            );
+            const activeSnap = await getDoc(activeRef);
+
+            if (activeSnap.exists()) {
+              const userId = activeSnap.data().userId;
+              const result = await notifyUser(userId, ticketNum, exhibitId);
+              if (result.ok) {
+                console.log(`${ticketNum}番の人に通知を送信しました`);
+              } else {
+                console.error(
+                  `${ticketNum}番の人への通知に失敗しました:`,
+                  result.error,
+                );
+              }
+            }
+          } catch (notifyError) {
+            console.error(
+              `${ticketNum}番への通知処理中にエラー:`,
+              notifyError,
+            );
+          }
+        }
       }
     } catch (error) {
       console.error("配布モード更新中にエラーが発生しました:", error);
