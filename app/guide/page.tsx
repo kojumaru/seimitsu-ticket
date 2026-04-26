@@ -13,31 +13,31 @@ const EXHIBITS = [
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/soccer.png",
-    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
+    schedules: ["16日（土）16:00", "17日（日）18:00"],
   },
   {
     id: "chess",
-    name: "ロボット\nチェス",
+    name: "ロボットチェス",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/chess.png",
-    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
+    schedules: ["16日（土）16:00", "17日（日）18:00"],
   },
   {
     id: "arm",
-    name: "ロボット\nアーム",
+    name: "ロボットアーム",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
-    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
+    schedules: ["16日（土）16:00", "17日（日）18:00"],
   },
   {
     id: "switch",
-    name: "せいみつ\nスイッチ",
+    name: "せいみつスイッチ",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/switch.png",
-    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
+    schedules: ["16日（土）16:00", "17日（日）18:00"],
   },
 ];
 
@@ -56,7 +56,10 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
     return () => unsubscribe();
   }, [exhibit.id]);
 
-  const waitCount = (nowServing !== null && currentNumber !== null) ? Math.max(0, nowServing - currentNumber) : null;
+  const waitCount =
+    nowServing !== null && currentNumber !== null
+      ? Math.max(0, nowServing - currentNumber)
+      : null;
   const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
 
   return (
@@ -70,7 +73,8 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
         <div
           className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
           style={{
-            backgroundImage: "radial-gradient(circle 6px at 6px center, transparent 6px, #6B1F3A 6px)",
+            backgroundImage:
+              "radial-gradient(circle 6px at 6px center, transparent 6px, #6B1F3A 6px)",
             backgroundSize: "12px 12px",
             backgroundPosition: "0 0",
           }}
@@ -78,7 +82,8 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
         <div
           className="absolute right-0 top-0 bottom-0 w-3 pointer-events-none"
           style={{
-            backgroundImage: "radial-gradient(circle 6px at -6px center, transparent 6px, #6B1F3A 6px)",
+            backgroundImage:
+              "radial-gradient(circle 6px at -6px center, transparent 6px, #6B1F3A 6px)",
             backgroundSize: "12px 12px",
             backgroundPosition: "0 0",
           }}
@@ -121,21 +126,34 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
         {/* ロケーション */}
         <div className="flex items-center justify-center gap-1.5 mb-3 text-xs font-medium">
-          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <svg
+            className="w-3.5 h-3.5 flex-shrink-0"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
             <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
           </svg>
           {exhibit.location}
         </div>
 
         {/* 日程 */}
-        <div className="flex items-center justify-center gap-1.5 mb-4 text-xs font-medium">
-          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M7 4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H7zm0-2h10a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zm2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm2 5a1 1 0 1 0-2 0v2a1 1 0 1 0 2 0v-2z" />
-          </svg>
-          <div className="text-left">
-            <div>{exhibit.schedules[0]}</div>
-            <div>{exhibit.schedules[1]}</div>
+        <div className="mb-3">
+          <div className="flex items-center justify-center gap-1.5 mb-2 text-xs font-medium">
+            <svg
+              className="w-3.5 h-3.5 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M7 4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H7zm0-2h10a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zm2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm2 5a1 1 0 1 0-2 0v2a1 1 0 1 0 2 0v-2z" />
+            </svg>
+            <div className="text-left">
+              <div>{exhibit.schedules[0]}</div>
+              <div>{exhibit.schedules[1]}</div>
+            </div>
           </div>
+          <p className="text-xs text-white/70 text-center px-1">
+            終了時刻30分前に整理券呼び出しは終了致します
+          </p>
         </div>
 
         {/* 待ち人数バナー */}
@@ -151,7 +169,9 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
         {/* フッター */}
         <div className="text-center text-xs font-medium text-white/80 space-y-1">
-          <div>現在案内中: {currentNumber === null ? "取得中..." : currentNumber}番</div>
+          <div>
+            現在案内中: {currentNumber === null ? "取得中..." : currentNumber}番
+          </div>
           <div>待ち時間目安: {exhibit.timePerPerson}分</div>
         </div>
       </div>
@@ -172,7 +192,9 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
         <div className="bg-white p-2.5 rounded-lg">
           <QRCodeSVG value={url} size={100} />
         </div>
-        <p className="text-center text-xs font-bold text-[#6B1F3A]">SCAN TO GET TICKET</p>
+        <p className="text-center text-xs font-bold text-[#6B1F3A]">
+          カメラで読み取ってね！
+        </p>
       </div>
     </div>
   );
@@ -193,7 +215,10 @@ export default function GuidePage() {
         <div className="w-full max-w-7xl mx-auto flex justify-between items-start gap-8">
           {/* 左側 */}
           <div className="flex-1">
-            <h1 className="text-5xl font-black text-white mb-3" style={{ letterSpacing: "0.05em" }}>
+            <h1
+              className="text-5xl font-black text-white mb-3"
+              style={{ letterSpacing: "0.05em" }}
+            >
               整理券一覧
             </h1>
             <p className="text-2xl font-bold text-white">
@@ -205,11 +230,11 @@ export default function GuidePage() {
           <div className="flex-1 text-right">
             <p className="text-xs text-white leading-relaxed whitespace-pre-wrap">
               【整理券発行に関するご案内】
-本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。
-使用目的：順番待ちの管理及び公式LINEからの呼び出し通知のみに使用します。
-情報の破棄：五月祭終了後、全てのデータは速やかに完全消去されます。
-その他：五月祭以外の目的の利用や第三者への提供は一切行いません。
-本システムの利用には上記への同意が必須となります。
+              本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。
+              使用目的：順番待ちの管理及び公式LINEからの呼び出し通知のみに使用します。
+              情報の破棄：五月祭終了後、全てのデータは速やかに完全消去されます。
+              その他：五月祭以外の目的の利用や第三者への提供は一切行いません。
+              本システムの利用には上記への同意が必須となります。
             </p>
           </div>
         </div>
