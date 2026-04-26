@@ -5,6 +5,8 @@ import { db } from "../../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import Image from "next/image";
 import { QRCodeSVG } from "qrcode.react";
+import { COLORS, CONFIG, DEFAULTS, MESSAGES } from "../../lib/constants";
+import { LocationIcon, CalendarIcon } from "../../components/icons";
 
 const EXHIBITS = [
   {
@@ -33,28 +35,38 @@ const EXHIBITS = [
   },
 ];
 
+interface TicketData {
+  nowServing: number | null;
+  currentNumber: number | null;
+  distributionEnabled: boolean;
+}
+
 function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
-  const [nowServing, setNowServing] = useState<number | null>(null);
-  const [currentNumber, setCurrentNumber] = useState<number | null>(null);
-  const [distributionEnabled, setDistributionEnabled] = useState(true);
+  const [ticketData, setTicketData] = useState<TicketData>({
+    nowServing: null,
+    currentNumber: null,
+    distributionEnabled: DEFAULTS.distributionEnabled,
+  });
 
   useEffect(() => {
-    const ref = doc(db, "tickets", exhibit.id);
+    const ref = doc(db, CONFIG.firebase.ticketsCollection, exhibit.id);
     const unsubscribe = onSnapshot(ref, (snap) => {
       if (snap.exists()) {
-        setNowServing(snap.data().nowServing ?? null);
-        setCurrentNumber(snap.data().currentNumber ?? null);
-        setDistributionEnabled(snap.data().distributionEnabled ?? true);
+        setTicketData({
+          nowServing: snap.data().nowServing ?? null,
+          currentNumber: snap.data().currentNumber ?? null,
+          distributionEnabled: snap.data().distributionEnabled ?? DEFAULTS.distributionEnabled,
+        });
       }
     });
     return () => unsubscribe();
   }, [exhibit.id]);
 
   const waitCount =
-    nowServing !== null && currentNumber !== null
-      ? Math.max(0, nowServing - currentNumber)
+    ticketData.nowServing !== null && ticketData.currentNumber !== null
+      ? Math.max(0, ticketData.nowServing - ticketData.currentNumber)
       : null;
-  const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
+  const url = `${CONFIG.line.liffUrlBase}?exhibitId=${exhibit.id}`;
 
   return (
     <div
@@ -62,40 +74,38 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       style={{ filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.25))" }}
     >
       {/* チケット上部（ダークレッド） */}
-      <div className="bg-[#6B1F3A] px-4 pt-4 pb-4 relative overflow-hidden rounded-t-3xl">
+      <div className={`px-4 pt-4 pb-4 relative overflow-hidden rounded-t-3xl`} style={{ backgroundColor: COLORS.darkRed }}>
         {/* 側面ノッチ（切り込み）*/}
         <div
           className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
           style={{
-            backgroundImage:
-              "radial-gradient(circle 6px at 6px center, transparent 6px, #6B1F3A 6px)",
-            backgroundSize: "12px 12px",
+            backgroundImage: `radial-gradient(circle ${CONFIG.pattern.notchSize}px at ${CONFIG.pattern.notchSize}px center, transparent ${CONFIG.pattern.notchSize}px, ${COLORS.darkRed} ${CONFIG.pattern.notchSize}px)`,
+            backgroundSize: `${CONFIG.pattern.notchSpacing}px ${CONFIG.pattern.notchSpacing}px`,
             backgroundPosition: "0 0",
           }}
         />
         <div
           className="absolute right-0 top-0 bottom-0 w-3 pointer-events-none"
           style={{
-            backgroundImage:
-              "radial-gradient(circle 6px at -6px center, transparent 6px, #6B1F3A 6px)",
-            backgroundSize: "12px 12px",
+            backgroundImage: `radial-gradient(circle ${CONFIG.pattern.notchSize}px at -${CONFIG.pattern.notchSize}px center, transparent ${CONFIG.pattern.notchSize}px, ${COLORS.darkRed} ${CONFIG.pattern.notchSize}px)`,
+            backgroundSize: `${CONFIG.pattern.notchSpacing}px ${CONFIG.pattern.notchSpacing}px`,
             backgroundPosition: "0 0",
           }}
         />
 
         {/* チケット画像 */}
-        <div className="relative bg-[#8E2D47] rounded-2xl overflow-hidden aspect-square mb-4 mx-auto max-w-xs">
+        <div className="relative rounded-2xl overflow-hidden aspect-square mb-4 mx-auto max-w-xs" style={{ backgroundColor: COLORS.mediumRed }}>
           {/* チェッカーパターン */}
           <div
             className="absolute inset-0 opacity-50"
             style={{
               backgroundImage: `
-                linear-gradient(45deg, #B54560 25%, transparent 25%),
-                linear-gradient(-45deg, #B54560 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #B54560 75%),
-                linear-gradient(-45deg, transparent 75%, #B54560 75%)
+                linear-gradient(45deg, ${COLORS.lightRed} 25%, transparent 25%),
+                linear-gradient(-45deg, ${COLORS.lightRed} 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, ${COLORS.lightRed} 75%),
+                linear-gradient(-45deg, transparent 75%, ${COLORS.lightRed} 75%)
               `,
-              backgroundSize: "32px 32px",
+              backgroundSize: `${CONFIG.pattern.checkerSize}px ${CONFIG.pattern.checkerSize}px`,
               backgroundPosition: "0 0, 0 16px, 16px -16px, -16px 0px",
             }}
           />
@@ -120,33 +130,22 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
         {/* ロケーション */}
         <div className="flex items-center justify-center gap-1.5 mb-3 text-xs font-bold">
-          <svg
-            className="w-3.5 h-3.5 flex-shrink-0"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-          >
-            <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
-          </svg>
+          <LocationIcon />
           {exhibit.location}
         </div>
 
         {/* 日程 */}
         <div className="mb-3">
           <div className="flex items-center justify-center gap-1.5 mb-2 text-xs font-bold">
-            <svg
-              className="w-3.5 h-3.5 flex-shrink-0"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M7 4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H7zm0-2h10a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zm2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm2 5a1 1 0 1 0-2 0v2a1 1 0 1 0 2 0v-2z" />
-            </svg>
+            <CalendarIcon />
             <div className="text-left">
-              <div>{exhibit.schedules[0]}</div>
-              <div>{exhibit.schedules[1]}</div>
+              {exhibit.schedules.map((schedule, i) => (
+                <div key={i}>{schedule}</div>
+              ))}
             </div>
           </div>
           <p className="text-xs text-white text-center px-1 font-bold">
-            終了時刻30分前に整理券呼び出しは終了します
+            {MESSAGES.ticketDeadlineInfo}
           </p>
         </div>
 
@@ -154,21 +153,21 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
         <div className="bg-white/20 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-center w-full">
           <div className="text-base font-bold space-y-1">
             <div>
-              待ち時間目安:
-              {currentNumber === null ? (
-                <span>取得中</span>
+              {MESSAGES.waitTimeLabel}
+              {ticketData.currentNumber === null ? (
+                <span>{MESSAGES.loading}</span>
               ) : (
                 <span>
                   約{" "}
                   {waitCount !== null
                     ? exhibit.timePerPerson * waitCount
-                    : "取得中"}
-                  分
+                    : MESSAGES.loading}
+                  {MESSAGES.minutes}
                 </span>
               )}
             </div>
             <div>
-              現在案内中: ~{currentNumber === null ? "取得中" : currentNumber}番
+              {MESSAGES.servingLabel} ~{ticketData.currentNumber === null ? MESSAGES.loading : ticketData.currentNumber}番
             </div>
           </div>
         </div>
@@ -176,22 +175,21 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
       {/* チケットセパレーター（波型） */}
       <div
-        className="h-0 bg-[#6B1F3A]"
+        className="h-0"
         style={{
-          WebkitMaskImage:
-            "radial-gradient(circle 6px at 50% 0, transparent 99%, #000 100%) center bottom / 12px 100% repeat-x",
-          maskImage:
-            "radial-gradient(circle 6px at 50% 0, transparent 99%, #000 100%) center bottom / 12px 100% repeat-x",
+          backgroundColor: COLORS.darkRed,
+          WebkitMaskImage: `radial-gradient(circle ${CONFIG.pattern.notchSize}px at 50% 0, transparent 99%, #000 100%) center bottom / ${CONFIG.pattern.notchSpacing}px 100% repeat-x`,
+          maskImage: `radial-gradient(circle ${CONFIG.pattern.notchSize}px at 50% 0, transparent 99%, #000 100%) center bottom / ${CONFIG.pattern.notchSpacing}px 100% repeat-x`,
         }}
       />
 
       {/* チケット下部（クリーム色） */}
-      <div className="bg-[#F2E7E0] px-4 py-4 flex flex-col items-center gap-1 rounded-b-3xl">
-        {distributionEnabled === false ? (
-          <div className="bg-[#8E2D47] rounded-xl px-6 py-4 text-center w-full">
-            <p className="text-white text-xl font-black">案内中</p>
+      <div className="px-4 py-4 flex flex-col items-center gap-1 rounded-b-3xl" style={{ backgroundColor: COLORS.cream }}>
+        {ticketData.distributionEnabled === false ? (
+          <div className="rounded-xl px-6 py-4 text-center w-full" style={{ backgroundColor: COLORS.mediumRed }}>
+            <p className="text-white text-xl font-black">{MESSAGES.serving}</p>
             <p className="text-white/80 text-xs mt-1">
-              現在整理券不要で案内中です
+              {MESSAGES.noTicketRequired}
             </p>
           </div>
         ) : (
@@ -199,8 +197,8 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
             <div className="bg-white p-2.5 rounded-lg">
               <QRCodeSVG value={url} size={100} />
             </div>
-            <p className="text-center text-xs font-bold text-[#6B1F3A]">
-              カメラで読み取ってね！
+            <p className="text-center text-xs font-bold" style={{ color: COLORS.darkRed }}>
+              {MESSAGES.scanQR}
             </p>
           </>
         )}
@@ -212,15 +210,18 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 export default function GuidePage() {
   return (
     <main
-      className="min-h-screen bg-[#A64C60] flex flex-col"
-      style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundColor: COLORS.bgRed,
+        fontFamily: '"Noto Sans JP", system-ui, sans-serif',
+      }}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
       `}</style>
 
       {/* ヘッダーバナー */}
-      <div className="bg-[#A64C60] px-8 py-8">
+      <div className="px-8 py-8" style={{ backgroundColor: COLORS.bgRed }}>
         <div className="w-full max-w-7xl mx-auto flex justify-between items-start gap-8">
           {/* 左側 */}
           <div className="flex-1">
@@ -228,10 +229,10 @@ export default function GuidePage() {
               className="text-5xl font-black text-white mb-3"
               style={{ letterSpacing: "0.05em" }}
             >
-              整理券配布中
+              {MESSAGES.ticketDistributionTitle}
             </h1>
             <p className="text-2xl font-bold text-white">
-              カメラでQRコードをスキャンしてゲットしよう！
+              {MESSAGES.ticketDistributionSubtitle}
             </p>
           </div>
 
