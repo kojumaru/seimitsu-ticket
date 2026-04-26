@@ -346,7 +346,7 @@ export default function TicketPage() {
                 </div>
               </div>
               {!ready ? (
-                <div className="mt-20">
+                <div className="mt-10">
                   <div className="text-xs font-medium mb-1.5 text-white/75">
                     —
                   </div>
@@ -355,7 +355,7 @@ export default function TicketPage() {
                   </div>
                 </div>
               ) : ticketNumber ? (
-                <div className="mt-20">
+                <div className="mt-10">
                   <div className="text-xs font-medium mb-1.5">
                     あなたの番号：
                   </div>
@@ -365,7 +365,7 @@ export default function TicketPage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-20">
+                <div className="mt-10">
                   <div className="text-xs font-medium mb-1.5">待ち人数：</div>
                   <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[36px] font-bold">
                     {nowServing === null || currentNumber === null ? (
