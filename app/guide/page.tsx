@@ -220,7 +220,7 @@ export default function GuidePage() {
           {/* 左側 */}
           <div className="flex-1">
             <h1
-              className="text-5xl font-black text-white mb-3"
+              className="text-5xl font-black text-white mb-1"
               style={{ letterSpacing: "0.05em" }}
             >
               整理券一覧
