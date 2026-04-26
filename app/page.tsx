@@ -54,7 +54,7 @@ const EXHIBIT_INFO: Record<
     ),
   },
   soccer: {
-    name: "スーパーロボットサッカー",
+    name: "スーパー\nロボットサッカー",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/soccer.png",
@@ -111,7 +111,7 @@ const EXHIBIT_INFO: Record<
     ),
   },
   arm: {
-    name: "ロボットアーム",
+    name: "ワームホール\nロボットアーム",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
@@ -139,6 +139,36 @@ const EXHIBIT_INFO: Record<
         </g>
       </svg>
     ),
+  },
+  pong: {
+    name: "せいみつPONG!",
+    location: "14号館 1階142教室",
+    timePerPerson: 5,
+    imageUrl: "/images/pong.png",
+  },
+  shooting: {
+    name: "お絵描きシューティング",
+    location: "14号館 1階142教室",
+    timePerPerson: 5,
+    imageUrl: "/images/shooting.png",
+  },
+  tank: {
+    name: "ARタンク",
+    location: "14号館 1階142教室",
+    timePerPerson: 5,
+    imageUrl: "/images/tank.png",
+  },
+  room: {
+    name: "現実拡張空間",
+    location: "14号館 3階146教室",
+    timePerPerson: 5,
+    imageUrl: "/images/room.png",
+  },
+  truck: {
+    name: "ジャングル・スコープ",
+    location: "14号館 3階146教室",
+    timePerPerson: 5,
+    imageUrl: "/images/truck.png",
   },
 };
 
@@ -193,13 +223,17 @@ export default function TicketPage() {
             // 呼び出し時刻を取得
             const calledAtData = snap.data().currentNumber_called_at;
             if (calledAtData && !calledAt) {
-              setCalledAt(calledAtData.toDate ? calledAtData.toDate() : new Date(calledAtData));
+              setCalledAt(
+                calledAtData.toDate
+                  ? calledAtData.toDate()
+                  : new Date(calledAtData),
+              );
             }
           }
         },
         (error) => {
           console.error("onSnapshot error:", error);
-        }
+        },
       );
       return unsubscribe;
     };
@@ -372,7 +406,11 @@ export default function TicketPage() {
                   {currentNumber === null ? (
                     <span className="text-lg">取得中...</span>
                   ) : (
-                    currentNumber
+                    <>
+                      <span>~</span>
+                      <span>{currentNumber}</span>
+                      <span className="text-sm font-bold ml-1">番</span>
+                    </>
                   )}
                 </div>
               </div>
