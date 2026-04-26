@@ -100,6 +100,7 @@ export default function TicketPage() {
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
   const [calledAt, setCalledAt] = useState<Date | null>(null);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const profileRef = useRef<{ userId: string } | null>(null);
 
   useEffect(() => {
@@ -123,8 +124,29 @@ export default function TicketPage() {
     const initializeData = async () => {
       await initLiff();
 
-      // 認証後にリスナーを設定
+      // 認証後、まず一度getDocで初期データを取得
       const ticketRef = doc(db, "tickets", exhibitId);
+      try {
+        const snap = await getDoc(ticketRef);
+        if (snap.exists()) {
+          setNowServing(snap.data().nowServing ?? null);
+          setCurrentNumber(snap.data().currentNumber ?? null);
+          const calledAtData = snap.data().currentNumber_called_at;
+          if (calledAtData && !calledAt) {
+            setCalledAt(
+              calledAtData.toDate
+                ? calledAtData.toDate()
+                : new Date(calledAtData),
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Initial getDoc error:", error);
+      } finally {
+        setIsLoadingData(false);
+      }
+
+      // その後、リアルタイムリスナーを設定
       const unsubscribe = onSnapshot(
         ticketRef,
         (snap) => {
@@ -417,11 +439,11 @@ export default function TicketPage() {
                   )}
                   <button
                     onClick={issueTicket}
-                    disabled={isIssuing}
-                    className="w-full bg-white text-[#6B1F3A] py-4 rounded text-lg font-bold transition-transform active:scale-95 disabled:opacity-50"
+                    disabled={isIssuing || !ready || isLoadingData}
+                    className="w-full bg-white text-[#6B1F3A] py-4 rounded text-lg font-bold transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ letterSpacing: "0.04em" }}
                   >
-                    {isIssuing ? "発行中..." : "整理券を受け取る"}
+                    {!ready || isLoadingData ? "読み込み中..." : isIssuing ? "発行中..." : "整理券を受け取る"}
                   </button>
                 </motion.div>
               </AnimatePresence>
