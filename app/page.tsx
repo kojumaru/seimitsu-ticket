@@ -14,8 +14,9 @@ const EXHIBIT_INFO: Record<
     location: string;
     name: string;
     timePerPerson: number;
-    illustration?: React.ReactNode;
     imageUrl?: string;
+    schedules?: string[];
+    illustration?: React.ReactNode;
   }
 > = {
   switch: {
@@ -23,6 +24,7 @@ const EXHIBIT_INFO: Record<
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/switch.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
     illustration: (
       <svg viewBox="0 0 120 120" width="60%" height="60%">
         <circle
@@ -58,6 +60,7 @@ const EXHIBIT_INFO: Record<
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/soccer.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
     illustration: (
       <svg viewBox="0 0 90 80" width="86" height="76">
         <g
@@ -95,6 +98,7 @@ const EXHIBIT_INFO: Record<
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/chess.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
     illustration: (
       <svg viewBox="0 0 100 100" width="62%" height="62%">
         <g
@@ -115,6 +119,7 @@ const EXHIBIT_INFO: Record<
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
     illustration: (
       <svg viewBox="0 0 100 100" width="70%" height="70%">
         <g
@@ -145,30 +150,35 @@ const EXHIBIT_INFO: Record<
     location: "14号館 1階142教室",
     timePerPerson: 5,
     imageUrl: "/images/pong.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   shooting: {
     name: "お絵描きシューティング",
     location: "14号館 1階142教室",
     timePerPerson: 5,
     imageUrl: "/images/shooting.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   tank: {
     name: "ARタンク",
     location: "14号館 1階142教室",
     timePerPerson: 5,
     imageUrl: "/images/tank.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   room: {
     name: "現実拡張空間",
     location: "14号館 3階146教室",
     timePerPerson: 5,
     imageUrl: "/images/room.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   truck: {
     name: "ジャングル・スコープ",
     location: "14号館 3階146教室",
     timePerPerson: 5,
     imageUrl: "/images/truck.png",
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
 };
 
@@ -376,7 +386,7 @@ export default function TicketPage() {
 
             {/* タイトル */}
             <h2
-              className="text-[30px] font-black leading-5 mb-4 whitespace-pre-line"
+              className="text-[30px] font-black leading-relaxed mb-4 whitespace-pre-line"
               style={{ letterSpacing: "0.01em" }}
             >
               {currentInfo.name}
@@ -396,18 +406,26 @@ export default function TicketPage() {
 
             {/* グリッド */}
             <div className="grid grid-cols-2 gap-2.5 mb-5">
-              <div>
-                <div className="text-xs font-medium mb-1.5">現在案内中：</div>
-                <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                  {currentNumber === null ? (
-                    <span className="text-lg">取得中...</span>
-                  ) : (
-                    <>
-                      <span>~</span>
-                      <span>{currentNumber}</span>
-                      <span className="text-sm font-bold ml-1">番</span>
-                    </>
-                  )}
+              <div className="flex flex-col gap-2.5">
+                <div>
+                  <div className="text-xs font-medium mb-1.5">現在案内中：</div>
+                  <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
+                    {currentNumber === null ? (
+                      <span className="text-lg">取得中...</span>
+                    ) : (
+                      <>
+                        <span>~</span>
+                        <span>{currentNumber}</span>
+                        <span className="text-sm font-bold ml-1">番</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs font-medium mb-1.5">待ち時間目安：</div>
+                  <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-xs font-medium leading-relaxed text-center whitespace-pre-line p-2">
+                    {currentInfo.schedules?.join("\n") || "—"}
+                  </div>
                 </div>
               </div>
               {!ready ? (
