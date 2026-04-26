@@ -311,7 +311,7 @@ export default function TicketPage() {
               <div className="flex flex-col gap-2.5">
                 <div>
                   <div className="text-xs font-medium mb-1.5">現在案内中：</div>
-                  <div className="bg-[#4F1128] rounded h-20 flex items-center justify-center text-[42px] font-bold leading-none">
+                  <div className="bg-[#4F1128] rounded h-18 flex items-center justify-center text-[42px] font-bold leading-none">
                     {currentNumber === null ? (
                       <span className="text-lg">取得中...</span>
                     ) : (
@@ -324,8 +324,10 @@ export default function TicketPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs font-medium mb-1.5">待ち時間目安：</div>
-                  <div className="bg-[#4F1128] rounded h-20 flex items-center justify-center text-[42px] font-bold leading-none">
+                  <div className="text-xs font-medium mb-1.5">
+                    待ち時間目安：
+                  </div>
+                  <div className="bg-[#4F1128] rounded h-18 flex items-center justify-center text-[42px] font-bold leading-none">
                     {currentNumber === null ? (
                       <span className="text-lg">取得中</span>
                     ) : (
@@ -344,7 +346,7 @@ export default function TicketPage() {
                 </div>
               </div>
               {!ready ? (
-                <div>
+                <div className="mt-20">
                   <div className="text-xs font-medium mb-1.5 text-white/75">
                     —
                   </div>
@@ -353,7 +355,7 @@ export default function TicketPage() {
                   </div>
                 </div>
               ) : ticketNumber ? (
-                <div>
+                <div className="mt-20">
                   <div className="text-xs font-medium mb-1.5">
                     あなたの番号：
                   </div>
@@ -363,7 +365,7 @@ export default function TicketPage() {
                   </div>
                 </div>
               ) : (
-                <div>
+                <div className="mt-20">
                   <div className="text-xs font-medium mb-1.5">待ち人数：</div>
                   <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[36px] font-bold">
                     {nowServing === null || currentNumber === null ? (
