@@ -170,7 +170,7 @@ export default function AdminPage() {
   const exhibitName = EXHIBIT_NAMES[exhibitId] || exhibitId;
 
   return (
-    <main className="p-8 bg-[#A64C60]/70 text-white min-h-screen text-center flex flex-col items-center justify-center">
+    <main className="p-8 bg-[#A64C60]/40 text-white min-h-screen text-center flex flex-col items-center justify-center">
       <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitName}）</h1>
 
       {/* エラー表示 */}
@@ -182,7 +182,7 @@ export default function AdminPage() {
 
       {/* 現在案内中（メイン） */}
       <div className="mb-12">
-        <div className="bg-gradient-to-br from-[#8E2D47] to-[#6B1F3A] p-10 rounded-3xl border-2 border-[#6B1F3A] shadow-2xl shadow-[#8E2D47]/50">
+        <div className="bg-gradient-to-br from-[#8E2D47] to-[#6B1F3A] p-10 rounded-3xl border-2 border-[#8E2D47] shadow-2xl shadow-[#8E2D47]/50">
           <p className="text-white text-base font-bold mb-4 uppercase tracking-widest">
             呼び出し済み番号
           </p>
@@ -191,7 +191,7 @@ export default function AdminPage() {
           </div>
           <div className="text-3xl text-[#F2E7E0] mt-2">番</div>
         </div>
-        <div className="bg-[#6B1F3A]/50 backdrop-blur border-2 border-[#6B1F3A] rounded-2xl px-8 py-4 mt-6 inline-block">
+        <div className="bg-[#6B1F3A]/50 backdrop-blur border-2 border-[#8E2D47] rounded-2xl px-8 py-4 mt-6 inline-block">
           <p className="text-2xl font-black text-[#F2E7E0]">
             現在取得されている整理券：{" "}
             <span className="text-4xl text-white">{nowServing}番</span>
