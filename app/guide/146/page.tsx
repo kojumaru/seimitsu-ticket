@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "../../lib/firebase";
+import { db, auth } from "../../lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import Image from "next/image";
 import { QRCodeSVG } from "qrcode.react";
 import { COLORS, CONFIG, DEFAULTS, MESSAGES } from "../../lib/constants";
@@ -41,17 +42,29 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
   });
 
   useEffect(() => {
-    const ref = doc(db, CONFIG.firebase.ticketsCollection, exhibit.id);
-    const unsubscribe = onSnapshot(ref, (snap) => {
-      if (snap.exists()) {
-        setTicketData({
-          nowServing: snap.data().nowServing ?? null,
-          currentNumber: snap.data().currentNumber ?? null,
-          distributionEnabled: snap.data().distributionEnabled ?? DEFAULTS.distributionEnabled,
+    let unsubscribe: (() => void) | null = null;
+
+    // 認証状態を監視して、認証完了後にリスナーを登録
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // 認証完了後、Firestoreリスナーを登録
+        const ref = doc(db, CONFIG.firebase.ticketsCollection, exhibit.id);
+        unsubscribe = onSnapshot(ref, (snap) => {
+          if (snap.exists()) {
+            setTicketData({
+              nowServing: snap.data().nowServing ?? null,
+              currentNumber: snap.data().currentNumber ?? null,
+              distributionEnabled: snap.data().distributionEnabled ?? DEFAULTS.distributionEnabled,
+            });
+          }
         });
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribe) unsubscribe();
+    };
   }, [exhibit.id]);
 
   const waitCount =

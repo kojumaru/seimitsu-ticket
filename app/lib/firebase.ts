@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,6 +17,22 @@ const app =
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-signInAnonymously(auth).catch(console.error);
+// Anonymous認証を初期化
+let authReady = false;
+
+const initAuth = () => {
+  if (authReady) return;
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      signInAnonymously(auth).catch(console.error);
+    }
+  });
+};
+
+// ページロード時に初期化開始
+if (typeof window !== "undefined") {
+  initAuth();
+}
 
 export { db, auth };
