@@ -25,7 +25,7 @@ const EXHIBITS = [
   },
   {
     id: "arm",
-    name: "ロボットアーム",
+    name: "ワームホール\nロボットアーム",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
@@ -182,7 +182,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
       {/* チケットセパレーター（波型） */}
       <div
-        className="h-4 bg-[#6B1F3A]"
+        className="h-0 bg-[#6B1F3A]"
         style={{
           WebkitMaskImage:
             "radial-gradient(circle 6px at 50% 0, transparent 99%, #000 100%) center bottom / 12px 100% repeat-x",
