@@ -1,9 +1,19 @@
-const EXHIBIT_NAMES: Record<string, string> = {
-  switch: "せいみつスイッチ",
-  soccer: "ロボットサッカー",
-  chess: "ロボットチェス",
-  arm: "ロボットアーム",
-  example: "サンプル企画",
+const EXHIBITS: Record<string, { name: string; location: string }> = {
+  pong: { name: "せいみつPONG!", location: "14号館 1階142教室" },
+  shooting: { name: "お絵描きシューティング", location: "14号館 1階142教室" },
+  tank: { name: "ARタンク", location: "14号館 1階142教室" },
+  room: { name: "現実拡張空間", location: "14号館 3階146教室" },
+  truck: { name: "ジャングル・スコープ", location: "14号館 3階146教室" },
+  soccer: {
+    name: "スーパーロボットサッカー",
+    location: "14号館 3階プロジェクト室",
+  },
+  chess: { name: "ロボットチェス", location: "14号館 3階プロジェクト室" },
+  arm: {
+    name: "ワームホールロボットアーム",
+    location: "14号館 3階プロジェクト室",
+  },
+  switch: { name: "せいみつスイッチ", location: "14号館 3階プロジェクト室" },
 };
 
 export async function sendLineNotification(
@@ -12,7 +22,9 @@ export async function sendLineNotification(
   exhibitId: string,
 ): Promise<{ ok: boolean; error?: string }> {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-  const displayName = EXHIBIT_NAMES[exhibitId] || exhibitId.toUpperCase();
+  const exhibit = EXHIBITS[exhibitId];
+  const displayName = exhibit?.name || exhibitId.toUpperCase();
+  const location = exhibit?.location || "企画場所";
 
   const res = await fetch("https://api.line.me/v2/bot/message/push", {
     method: "POST",
@@ -25,7 +37,7 @@ export async function sendLineNotification(
       messages: [
         {
           type: "text",
-          text: `【${displayName}】お待たせしました！${ticketNumber}番の方、お越しください！`,
+          text: `【${displayName}】お待たせしました！${ticketNumber}番の方、${location}へお越しください！`,
         },
       ],
     }),
@@ -45,7 +57,10 @@ export async function sendLineIssueNotification(
   exhibitId: string,
 ): Promise<{ ok: boolean; error?: string }> {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-  const displayName = EXHIBIT_NAMES[exhibitId] || exhibitId.toUpperCase();
+  const exhibit = EXHIBITS[exhibitId];
+  const displayName = exhibit?.name || exhibitId.toUpperCase();
+  const location = exhibit?.location || "企画場所";
+  const ticketPageUrl = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibitId}`;
 
   const res = await fetch("https://api.line.me/v2/bot/message/push", {
     method: "POST",
@@ -58,7 +73,7 @@ export async function sendLineIssueNotification(
       messages: [
         {
           type: "text",
-          text: `${displayName} の整理券を取得しました！\n\nこの券は「列に並ぶための予約券」です。\n① 順番が来るまでは、他の展示など自由にお過ごしください。\n② 順番になりましたら、このLINEで通知します。\n③ 通知が届きましたら、企画場所の列へお越しください。`,
+          text: `【${displayName}】の整理券を取得しました！\n\nこの券は「列に並ぶための予約券」です。\n① 順番が来るまでは、他の展示など自由にお過ごしください。\n② 順番になりましたら、このLINEで通知します。\n③ 通知が届きましたら、${location}の列へお越しください。\n\n整理券ページを再度開く:\n${ticketPageUrl}`,
         },
       ],
     }),
