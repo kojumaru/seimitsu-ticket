@@ -69,6 +69,12 @@ export default function AdminPage() {
     };
   }, [exhibitId]);
 
+  // エラーメッセージを2秒後に自動消去
+  const showError = (message: string) => {
+    setError(message);
+    setTimeout(() => setError(null), 2000);
+  };
+
   const nextNumber = async () => {
     if (loading) return; // 処理中はガード
     setError(null);
@@ -77,7 +83,7 @@ export default function AdminPage() {
 
     // エラーチェック：newCurrentNumber > nowServing の場合
     if (newCurrentNumber > nowServing) {
-      setError(
+      showError(
         `エラー：まだ整理券が発行されていません。現在案内中: ${currentNumber}番、配布済み: ${nowServing}番`,
       );
       return;
