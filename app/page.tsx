@@ -366,15 +366,11 @@ export default function TicketPage() {
               )}
               {/* イラスト */}
               <div className="absolute inset-0 flex items-center justify-center">
-                {currentInfo.imageUrl ? (
-                  <img
-                    src={currentInfo.imageUrl}
-                    alt={currentInfo.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  currentInfo.illustration
-                )}
+                <img
+                  src={currentInfo.imageUrl}
+                  alt={currentInfo.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
 
