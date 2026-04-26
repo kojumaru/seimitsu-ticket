@@ -240,7 +240,7 @@ export default function GuidePage() {
       </div>
 
       {/* カード一覧 */}
-      <div className="flex-1 px-6 -mt-4 flex flex-col items-center justify-center">
+      <div className="flex-1 px-6 -mt-5 flex flex-col items-center justify-center">
         <div className="w-full max-w-7xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {EXHIBITS.map((exhibit) => (
