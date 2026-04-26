@@ -13,31 +13,31 @@ const EXHIBITS = [
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/soccer.png",
-    schedules: ["16日（土）16:00", "17日（日）18:00"],
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   {
     id: "chess",
-    name: "ロボット\nチェス",
+    name: "ロボットチェス",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/chess.png",
-    schedules: ["16日（土）16:00", "17日（日）18:00"],
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   {
     id: "arm",
-    name: "ロボット\nアーム",
+    name: "ロボットアーム",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
-    schedules: ["16日（土）16:00", "17日（日）18:00"],
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   {
     id: "switch",
-    name: "せいみつ\nスイッチ",
+    name: "せいみつスイッチ",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/switch.png",
-    schedules: ["16日（土）16:00", "17日（日）18:00"],
+    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
 ];
 
@@ -152,24 +152,31 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
             </div>
           </div>
           <p className="text-xs text-white/70 text-center px-1">
-            終了時刻30分前に整理券呼び出しは終了致します
+            終了時刻30分前に整理券呼び出しは終了します
           </p>
         </div>
 
-        {/* 待ち人数バナー */}
-        <div className="bg-white/20 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-center">
-          <div className="text-sm font-bold">
-            {currentNumber === null ? (
-              <span>待ち時間目安: 取得中...</span>
-            ) : (
-              <span>待ち時間目安: {waitCount !== null ? exhibit.timePerPerson * waitCount : "取得中"}分</span>
-            )}
+        {/* 待ち時間・現在案内中バナー */}
+        <div className="bg-white/20 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-center w-full">
+          <div className="text-sm font-bold space-y-1">
+            <div>
+              待ち時間目安:
+              {currentNumber === null ? (
+                <span>取得中</span>
+              ) : (
+                <span>
+                  約{" "}
+                  {waitCount !== null
+                    ? exhibit.timePerPerson * waitCount
+                    : "取得中"}
+                  分
+                </span>
+              )}
+            </div>
+            <div>
+              現在案内中: ~{currentNumber === null ? "取得中" : currentNumber}番
+            </div>
           </div>
-        </div>
-
-        {/* フッター */}
-        <div className="text-center text-xs font-medium text-white/80">
-          現在案内中: {currentNumber === null ? "取得中..." : currentNumber}番
         </div>
       </div>
 
@@ -225,7 +232,7 @@ export default function GuidePage() {
 
           {/* 右側 */}
           <div className="flex-1 text-right">
-            <p className="text-xs text-white leading-relaxed whitespace-pre-wrap">
+            <p className="text-xs text-white leading-relaxed text-justify">
               【整理券発行に関するご案内】
               本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。
               使用目的：順番待ちの管理及び公式LINEからの呼び出し通知のみに使用します。
@@ -238,7 +245,7 @@ export default function GuidePage() {
       </div>
 
       {/* カード一覧 */}
-      <div className="flex-1 p-6 flex flex-col items-center justify-center">
+      <div className="flex-1 px-6 py-3 flex flex-col items-center justify-center">
         <div className="w-full max-w-7xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {EXHIBITS.map((exhibit) => (
