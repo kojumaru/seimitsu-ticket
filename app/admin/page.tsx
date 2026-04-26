@@ -183,7 +183,7 @@ export default function AdminPage() {
       {/* 現在案内中（メイン） */}
       <div className="mb-12">
         <div className="bg-gradient-to-br from-[#8E2D47] to-[#6B1F3A] p-16 rounded-3xl border-2 border-[#B54560] shadow-2xl shadow-[#8E2D47]/50">
-          <p className="text-white/70 text-sm mb-6 uppercase tracking-widest">
+          <p className="text-white text-lg font-bold mb-6 uppercase tracking-widest">
             呼び出し済み番号
           </p>
           <div className="text-[10rem] font-mono font-bold text-white leading-none">
@@ -237,7 +237,7 @@ export default function AdminPage() {
             整理券なし
           </span>
         </div>
-        <p className="text-white/70 text-sm">
+        <p className="text-white text-lg font-bold">
           {toggleLoading
             ? "更新中..."
             : `現在: ${distributionEnabled ? "整理券配布中" : "整理券なし"}`}
