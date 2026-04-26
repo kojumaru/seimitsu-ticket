@@ -379,7 +379,7 @@ export default function TicketPage() {
                 <img
                   src={currentInfo.imageUrl}
                   alt={currentInfo.name}
-                  className="w-full h-full object-cover"
+                  className="w-4/5 h-4/5 object-cover"
                 />
               </div>
             </div>
@@ -421,22 +421,20 @@ export default function TicketPage() {
                     )}
                   </div>
                   <div className="flex-1 flex items-center justify-center text-xs font-medium leading-relaxed text-center p-2">
-                    <div>
-                      待ち時間目安：
-                      {currentNumber === null ? (
-                        <span>取得中</span>
-                      ) : (
-                        <span>
-                          約{" "}
-                          {nowServing !== null && currentNumber !== null
-                            ? currentInfo.timePerPerson * Math.max(0, nowServing - currentNumber)
-                            : "取得中"}
-                          分
-                        </span>
-                      )}
-                    </div>
+                    {currentNumber === null ? (
+                      <span>取得中</span>
+                    ) : (
+                      <span>
+                        約{" "}
+                        {nowServing !== null && currentNumber !== null
+                          ? currentInfo.timePerPerson * Math.max(0, nowServing - currentNumber)
+                          : "取得中"}
+                        分
+                      </span>
+                    )}
                   </div>
                 </div>
+                <div className="text-xs font-medium mt-2.5">待ち時間目安：</div>
               </div>
               {!ready ? (
                 <div>
