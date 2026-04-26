@@ -181,18 +181,48 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 export default function GuidePage() {
   return (
     <main
-      className="min-h-screen bg-[#A64C60] p-6 flex flex-col items-center justify-center"
+      className="min-h-screen bg-[#A64C60] flex flex-col"
       style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
       `}</style>
 
-      <div className="w-full max-w-7xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {EXHIBITS.map((exhibit) => (
-            <ExhibitCard key={exhibit.id} exhibit={exhibit} />
-          ))}
+      {/* ヘッダーバナー */}
+      <div className="bg-[#A64C60] px-8 py-8 border-b-8 border-[#6B1F3A]">
+        <div className="w-full max-w-7xl mx-auto flex justify-between items-start gap-8">
+          {/* 左側 */}
+          <div className="flex-1">
+            <h1 className="text-5xl font-black text-white mb-3" style={{ letterSpacing: "0.05em" }}>
+              整理券一覧
+            </h1>
+            <p className="text-2xl font-bold text-white">
+              カメラでQRコードをスキャンしてゲットしよう！
+            </p>
+          </div>
+
+          {/* 右側 */}
+          <div className="flex-1 text-right">
+            <p className="text-xs text-white leading-relaxed whitespace-pre-wrap">
+              【整理券発行に関するご案内】
+本システムでは、混雑緩和と呼び出し通知のためにLINEユーザー識別子を利用します。
+使用目的：順番待ちの管理及び公式LINEからの呼び出し通知のみに使用します。
+情報の破棄：五月祭終了後、全てのデータは速やかに完全消去されます。
+その他：五月祭以外の目的の利用や第三者への提供は一切行いません。
+本システムの利用には上記への同意が必須となります。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* カード一覧 */}
+      <div className="flex-1 p-6 flex flex-col items-center justify-center">
+        <div className="w-full max-w-7xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {EXHIBITS.map((exhibit) => (
+              <ExhibitCard key={exhibit.id} exhibit={exhibit} />
+            ))}
+          </div>
         </div>
       </div>
     </main>
