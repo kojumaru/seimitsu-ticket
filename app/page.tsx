@@ -25,35 +25,6 @@ const EXHIBIT_INFO: Record<
     timePerPerson: 5,
     imageUrl: "/images/switch.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
-    illustration: (
-      <svg viewBox="0 0 120 120" width="60%" height="60%">
-        <circle
-          cx="60"
-          cy="60"
-          r="48"
-          fill="#FFFFFF"
-          stroke="#2E0A1A"
-          strokeWidth="2"
-        />
-        <circle
-          cx="60"
-          cy="60"
-          r="34"
-          fill="#6B1F3A"
-          stroke="#2E0A1A"
-          strokeWidth="2"
-        />
-        <circle
-          cx="60"
-          cy="60"
-          r="22"
-          fill="#FFFFFF"
-          stroke="#2E0A1A"
-          strokeWidth="2"
-        />
-        <rect x="56" y="30" width="8" height="20" fill="#2E0A1A" rx="2" />
-      </svg>
-    ),
   },
   soccer: {
     name: "スーパー\nロボットサッカー",
@@ -61,37 +32,6 @@ const EXHIBIT_INFO: Record<
     timePerPerson: 5,
     imageUrl: "/images/soccer.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
-    illustration: (
-      <svg viewBox="0 0 90 80" width="86" height="76">
-        <g
-          fill="#FFFFFF"
-          stroke="#2E0A1A"
-          strokeWidth="1.2"
-          strokeLinejoin="round"
-        >
-          <circle cx="45" cy="10" r="3" />
-          <line x1="45" y1="12" x2="45" y2="22" strokeWidth="2" />
-          <rect x="28" y="22" width="34" height="22" rx="3" />
-          <circle cx="37" cy="33" r="2.5" fill="#6B1F3A" stroke="none" />
-          <circle cx="53" cy="33" r="2.5" fill="#6B1F3A" stroke="none" />
-          <rect
-            x="38"
-            y="38"
-            width="14"
-            height="2"
-            fill="#6B1F3A"
-            stroke="none"
-          />
-          <rect x="18" y="46" width="54" height="18" rx="3" />
-          <circle cx="28" cy="68" r="7" />
-          <circle cx="45" cy="68" r="7" />
-          <circle cx="62" cy="68" r="7" />
-          <circle cx="28" cy="68" r="2" fill="#6B1F3A" stroke="none" />
-          <circle cx="45" cy="68" r="2" fill="#6B1F3A" stroke="none" />
-          <circle cx="62" cy="68" r="2" fill="#6B1F3A" stroke="none" />
-        </g>
-      </svg>
-    ),
   },
   chess: {
     name: "ロボットチェス",
@@ -99,20 +39,6 @@ const EXHIBIT_INFO: Record<
     timePerPerson: 5,
     imageUrl: "/images/chess.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
-    illustration: (
-      <svg viewBox="0 0 100 100" width="62%" height="62%">
-        <g
-          fill="#FFFFFF"
-          stroke="#2E0A1A"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        >
-          <path d="M30 85 L70 85 L72 78 L28 78 Z" />
-          <path d="M32 78 C 32 60, 40 55, 44 50 C 40 48, 38 44, 40 38 C 34 42, 28 42, 24 36 C 30 28, 42 18, 58 20 C 72 22, 78 38, 76 56 C 76 66, 72 74, 68 78 Z" />
-          <circle cx="54" cy="36" r="2" fill="#2E0A1A" stroke="none" />
-        </g>
-      </svg>
-    ),
   },
   arm: {
     name: "ワームホール\nロボットアーム",
@@ -120,30 +46,6 @@ const EXHIBIT_INFO: Record<
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
-    illustration: (
-      <svg viewBox="0 0 100 100" width="70%" height="70%">
-        <g
-          fill="#FFFFFF"
-          stroke="#2E0A1A"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        >
-          <rect x="20" y="80" width="60" height="10" rx="2" />
-          <rect x="36" y="55" width="14" height="30" />
-          <circle cx="43" cy="55" r="6" />
-          <rect
-            x="42"
-            y="30"
-            width="32"
-            height="12"
-            rx="2"
-            transform="rotate(-30 58 36)"
-          />
-          <circle cx="55" cy="48" r="5" />
-          <path d="M72 22 L82 22 L84 30 L70 30 Z" />
-        </g>
-      </svg>
-    ),
   },
   pong: {
     name: "せいみつPONG!",
@@ -420,21 +322,22 @@ export default function TicketPage() {
                       </>
                     )}
                   </div>
-                  <div className="flex-1 flex items-center justify-center text-xs font-medium leading-relaxed text-center p-2">
+                  <div className="flex-1 flex items-center justify-center text-[42px] font-bold leading-none">
                     {currentNumber === null ? (
-                      <span>取得中</span>
+                      <span className="text-lg">取得中</span>
                     ) : (
                       <span>
                         約{" "}
                         {nowServing !== null && currentNumber !== null
-                          ? currentInfo.timePerPerson * Math.max(0, nowServing - currentNumber)
+                          ? currentInfo.timePerPerson *
+                            Math.max(0, nowServing - currentNumber)
                           : "取得中"}
                         分
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="text-xs font-medium mt-2.5">待ち時間目安：</div>
+                <div className="text-xs font-medium my-2.5">待ち時間目安：</div>
               </div>
               {!ready ? (
                 <div>
