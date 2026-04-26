@@ -13,6 +13,7 @@ const EXHIBITS = [
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/soccer.png",
+    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
   },
   {
     id: "chess",
@@ -20,6 +21,7 @@ const EXHIBITS = [
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/chess.png",
+    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
   },
   {
     id: "arm",
@@ -27,6 +29,7 @@ const EXHIBITS = [
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
+    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
   },
   {
     id: "switch",
@@ -34,6 +37,7 @@ const EXHIBITS = [
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/switch.png",
+    schedules: ["16日（土）10:00-16:00", "17日（日）10:00-18:00"],
   },
 ];
 
@@ -56,105 +60,119 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
   const url = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibit.id}`;
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div
-        className="w-80 text-white relative"
-        style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.35))" }}
-      >
-        {/* チケットボディ */}
+    <div
+      className="w-full max-w-sm text-white relative"
+      style={{ filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.25))" }}
+    >
+      {/* チケット上部（ダークレッド） */}
+      <div className="bg-[#6B1F3A] px-4 pt-4 pb-6 relative overflow-hidden">
+        {/* 側面ノッチ（切り込み）*/}
         <div
-          className="bg-[#6B1F3A] px-4 pt-5 pb-7.5 rounded-3xl rounded-b-none relative"
+          className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
           style={{
-            WebkitMaskImage: "radial-gradient(18px at 50% 0, transparent 98%, black 100%)",
-            maskImage: "radial-gradient(18px at 50% 0, transparent 98%, black 100%)",
-          }}
-        >
-          {/* チケット画像 */}
-          <div className="relative bg-[#8E2D47] rounded-lg overflow-hidden aspect-square mb-5.5">
-            {/* チェッカーパターン */}
-            <div
-              className="absolute inset-0 opacity-55"
-              style={{
-                backgroundImage: `
-                  linear-gradient(45deg, #B54560 25%, transparent 25%),
-                  linear-gradient(-45deg, #B54560 25%, transparent 25%),
-                  linear-gradient(45deg, transparent 75%, #B54560 75%),
-                  linear-gradient(-45deg, transparent 75%, #B54560 75%)
-                `,
-                backgroundSize: "40px 40px",
-                backgroundPosition: "0 0, 0 20px, 20px -20px, -20px 0px",
-              }}
-            />
-            {/* 画像 */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Image
-                src={exhibit.imageUrl}
-                alt={exhibit.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
-
-          {/* タイトル */}
-          <h2
-            className="text-[30px] font-black leading-5 mb-4 whitespace-pre-line"
-            style={{ letterSpacing: "0.01em" }}
-          >
-            {exhibit.name}
-          </h2>
-
-          {/* ロケーション */}
-          <div className="flex items-center gap-1.5 mb-6 text-sm font-medium">
-            <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
-            </svg>
-            {exhibit.location}
-          </div>
-
-          {/* グリッド */}
-          <div className="grid grid-cols-2 gap-2.5 mb-5">
-            <div>
-              <div className="text-xs font-medium mb-1.5">現在案内中：</div>
-              <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                {currentNumber === null ? <span className="text-lg">取得中...</span> : currentNumber}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs font-medium mb-1.5">待ち人数：</div>
-              <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[36px] font-bold">
-                {waitCount === null ? (
-                  <span className="text-lg">取得中...</span>
-                ) : (
-                  <>
-                    <span>{waitCount}</span>
-                    <span className="text-sm font-bold ml-1">人</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* フッター */}
-          <p className="text-xs font-medium leading-relaxed text-white/75">
-            QRコードをスキャンして整理券を取得してください
-          </p>
-        </div>
-
-        {/* チケットフッター（波型） */}
-        <div
-          className="h-3.5 bg-[#6B1F3A]"
-          style={{
-            WebkitMaskImage: "radial-gradient(circle 8px at 12px 14px, transparent 99%, #000 100%) center top / 24px 100% repeat-x",
-            maskImage: "radial-gradient(circle 8px at 12px 14px, transparent 99%, #000 100%) center top / 24px 100% repeat-x",
-            marginTop: "-1px",
+            backgroundImage: "radial-gradient(circle 6px at 6px center, transparent 6px, #6B1F3A 6px)",
+            backgroundSize: "12px 12px",
+            backgroundPosition: "0 0",
           }}
         />
+        <div
+          className="absolute right-0 top-0 bottom-0 w-3 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle 6px at -6px center, transparent 6px, #6B1F3A 6px)",
+            backgroundSize: "12px 12px",
+            backgroundPosition: "0 0",
+          }}
+        />
+
+        {/* チケット画像 */}
+        <div className="relative bg-[#8E2D47] rounded-2xl overflow-hidden aspect-square mb-4 mx-auto max-w-xs">
+          {/* チェッカーパターン */}
+          <div
+            className="absolute inset-0 opacity-50"
+            style={{
+              backgroundImage: `
+                linear-gradient(45deg, #B54560 25%, transparent 25%),
+                linear-gradient(-45deg, #B54560 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #B54560 75%),
+                linear-gradient(-45deg, transparent 75%, #B54560 75%)
+              `,
+              backgroundSize: "32px 32px",
+              backgroundPosition: "0 0, 0 16px, 16px -16px, -16px 0px",
+            }}
+          />
+          {/* 画像 */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image
+              src={exhibit.imageUrl}
+              alt={exhibit.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+
+        {/* タイトル */}
+        <h2
+          className="text-2xl font-black leading-tight mb-3 whitespace-pre-line text-center"
+          style={{ letterSpacing: "0.02em" }}
+        >
+          {exhibit.name}
+        </h2>
+
+        {/* ロケーション */}
+        <div className="flex items-center justify-center gap-1.5 mb-3 text-xs font-medium">
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
+          </svg>
+          {exhibit.location}
+        </div>
+
+        {/* 日程 */}
+        <div className="flex items-center justify-center gap-1.5 mb-4 text-xs font-medium">
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M7 4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H7zm0-2h10a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zm2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm2 5a1 1 0 1 0-2 0v2a1 1 0 1 0 2 0v-2z" />
+          </svg>
+          <div className="text-left">
+            <div>{exhibit.schedules[0]}</div>
+            <div>{exhibit.schedules[1]}</div>
+          </div>
+        </div>
+
+        {/* 待ち人数バナー */}
+        <div className="bg-white/20 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-center">
+          <div className="text-sm font-bold">
+            {currentNumber === null ? (
+              <span>待ち人数: 取得中...</span>
+            ) : (
+              <span>待ち人数: {waitCount} 人</span>
+            )}
+          </div>
+        </div>
+
+        {/* フッター */}
+        <div className="text-center text-xs font-medium text-white/80 space-y-1">
+          <div>現在案内中: {currentNumber === null ? "取得中..." : currentNumber}番</div>
+          <div>待ち時間目安: {exhibit.timePerPerson}分</div>
+        </div>
       </div>
 
-      {/* QRコード */}
-      <div className="bg-white p-3 rounded-lg">
-        <QRCodeSVG value={url} size={120} />
+      {/* チケットセパレーター（波型） */}
+      <div
+        className="h-4 bg-[#6B1F3A]"
+        style={{
+          WebkitMaskImage:
+            "radial-gradient(circle 6px at 50% 0, transparent 99%, #000 100%) center bottom / 12px 100% repeat-x",
+          maskImage:
+            "radial-gradient(circle 6px at 50% 0, transparent 99%, #000 100%) center bottom / 12px 100% repeat-x",
+        }}
+      />
+
+      {/* チケット下部（クリーム色） */}
+      <div className="bg-[#F2E7E0] px-4 py-4 flex flex-col items-center gap-2">
+        <div className="bg-white p-2.5 rounded-lg">
+          <QRCodeSVG value={url} size={100} />
+        </div>
+        <p className="text-center text-xs font-bold text-[#6B1F3A]">SCAN TO GET TICKET</p>
       </div>
     </div>
   );
@@ -162,22 +180,16 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
 export default function GuidePage() {
   return (
-    <main className="min-h-screen bg-[#2E0A1A] text-white p-6 flex flex-col items-center justify-center" style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}>
+    <main
+      className="min-h-screen bg-[#A64C60] p-6 flex flex-col items-center justify-center"
+      style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
       `}</style>
 
-      <div className="w-full max-w-7xl flex flex-col gap-8 text-center">
-        <header>
-          <h1 className="text-3xl font-black tracking-tight mb-2">
-            整理券ガイド
-          </h1>
-          <p className="text-slate-400 text-sm">
-            各企画の現在の状況
-          </p>
-        </header>
-
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+      <div className="w-full max-w-7xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {EXHIBITS.map((exhibit) => (
             <ExhibitCard key={exhibit.id} exhibit={exhibit} />
           ))}
