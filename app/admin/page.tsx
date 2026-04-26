@@ -170,29 +170,29 @@ export default function AdminPage() {
   const exhibitName = EXHIBIT_NAMES[exhibitId] || exhibitId;
 
   return (
-    <main className="p-8 bg-black text-white min-h-screen text-center flex flex-col items-center justify-center">
+    <main className="p-8 bg-[#A64C60] text-white min-h-screen text-center flex flex-col items-center justify-center">
       <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitName}）</h1>
 
       {/* エラー表示 */}
       {error && (
-        <div className="bg-red-900/30 border-2 border-red-500 text-red-300 p-4 rounded-xl mb-6 max-w-md">
+        <div className="bg-white/20 border-2 border-white/40 text-white p-4 rounded-xl mb-6 max-w-md">
           {error}
         </div>
       )}
 
       {/* 現在案内中（メイン） */}
       <div className="mb-12">
-        <p className="text-slate-400 text-sm mb-3 uppercase tracking-widest">
-          呼び出し済み番号
-        </p>
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-16 rounded-3xl border-2 border-blue-400 shadow-2xl shadow-blue-500/50">
+        <div className="bg-gradient-to-br from-[#8E2D47] to-[#6B1F3A] p-16 rounded-3xl border-2 border-[#B54560] shadow-2xl shadow-[#8E2D47]/50">
+          <p className="text-white/70 text-sm mb-6 uppercase tracking-widest">
+            呼び出し済み番号
+          </p>
           <div className="text-[10rem] font-mono font-bold text-white leading-none">
             ~{currentNumber}
           </div>
-          <div className="text-4xl text-blue-200 mt-2">番</div>
+          <div className="text-4xl text-[#F2E7E0] mt-2">番</div>
         </div>
-        <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-8 py-4 mt-6 inline-block">
-          <p className="text-2xl font-black text-blue-200">
+        <div className="bg-[#6B1F3A]/50 backdrop-blur border border-[#B54560]/40 rounded-2xl px-8 py-4 mt-6 inline-block">
+          <p className="text-2xl font-black text-[#F2E7E0]">
             現在取得されている整理券：{" "}
             <span className="text-4xl text-white">{nowServing}番</span>
           </p>
@@ -203,7 +203,7 @@ export default function AdminPage() {
         onClick={nextNumber}
         disabled={loading}
         className={`px-12 py-6 rounded-2xl text-2xl font-black transition-all shadow-xl mb-12
-          ${loading ? "bg-slate-700 opacity-50 cursor-not-allowed" : "bg-red-600 hover:bg-red-500 active:scale-95"}`}
+          ${loading ? "bg-white/20 opacity-50 cursor-not-allowed" : "bg-[#8E2D47] hover:bg-[#6B1F3A] active:scale-95"}`}
       >
         {loading ? "更新中..." : "次の番号を呼ぶ"}
       </button>
@@ -212,7 +212,7 @@ export default function AdminPage() {
       <div className="flex flex-col items-center gap-6 mb-12">
         <div className="flex items-center gap-6">
           <span
-            className={`text-lg font-bold transition-colors ${distributionEnabled ? "text-white" : "text-slate-400"}`}
+            className={`text-lg font-bold transition-colors ${distributionEnabled ? "text-white" : "text-white/60"}`}
           >
             整理券配布中
           </span>
@@ -221,30 +221,30 @@ export default function AdminPage() {
             disabled={toggleLoading}
             className={`relative w-24 h-12 rounded-full transition-all shadow-lg ${
               distributionEnabled
-                ? "bg-green-600 hover:bg-green-500"
-                : "bg-orange-600 hover:bg-orange-500"
+                ? "bg-[#6B1F3A] hover:bg-[#8E2D47]"
+                : "bg-[#8E2D47] hover:bg-[#6B1F3A]"
             } ${toggleLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <div
-              className={`absolute top-1 w-10 h-10 rounded-full bg-white transition-transform duration-300 ${
+              className={`absolute top-1 w-10 h-10 rounded-full bg-[#F2E7E0] transition-transform duration-300 ${
                 distributionEnabled ? "translate-x-1" : "translate-x-13"
               }`}
             />
           </button>
           <span
-            className={`text-lg font-bold transition-colors ${!distributionEnabled ? "text-white" : "text-slate-400"}`}
+            className={`text-lg font-bold transition-colors ${!distributionEnabled ? "text-white" : "text-white/60"}`}
           >
             整理券なし
           </span>
         </div>
-        <p className="text-slate-400 text-sm">
+        <p className="text-white/70 text-sm">
           {toggleLoading
             ? "更新中..."
             : `現在: ${distributionEnabled ? "整理券配布中" : "整理券なし"}`}
         </p>
       </div>
 
-      <p className="mt-8 text-slate-500 text-xs uppercase tracking-tighter">
+      <p className="mt-8 text-white/50 text-xs uppercase tracking-tighter">
         Admin Console for Precision Lab.
       </p>
     </main>
