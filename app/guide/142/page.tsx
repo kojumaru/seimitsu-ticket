@@ -36,6 +36,7 @@ const EXHIBITS = [
 function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
   const [nowServing, setNowServing] = useState<number | null>(null);
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
+  const [distributionEnabled, setDistributionEnabled] = useState(true);
 
   useEffect(() => {
     const ref = doc(db, "tickets", exhibit.id);
@@ -43,6 +44,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       if (snap.exists()) {
         setNowServing(snap.data().nowServing ?? null);
         setCurrentNumber(snap.data().currentNumber ?? null);
+        setDistributionEnabled(snap.data().distributionEnabled ?? true);
       }
     });
     return () => unsubscribe();
@@ -184,13 +186,22 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       />
 
       {/* チケット下部（クリーム色） */}
-      <div className="bg-[#F2E7E0] px-4 py-2 flex flex-col items-center gap-1 rounded-b-3xl">
-        <div className="bg-white p-2.5 rounded-lg">
-          <QRCodeSVG value={url} size={100} />
-        </div>
-        <p className="text-center text-xs font-bold text-[#6B1F3A]">
-          カメラで読み取ってね！
-        </p>
+      <div className="bg-[#F2E7E0] px-4 py-4 flex flex-col items-center gap-1 rounded-b-3xl">
+        {distributionEnabled === false ? (
+          <div className="bg-[#8E2D47] rounded-xl px-6 py-4 text-center w-full">
+            <p className="text-white text-xl font-black">案内中</p>
+            <p className="text-white/80 text-xs mt-1">本展示は現在案内中です</p>
+          </div>
+        ) : (
+          <>
+            <div className="bg-white p-2.5 rounded-lg">
+              <QRCodeSVG value={url} size={100} />
+            </div>
+            <p className="text-center text-xs font-bold text-[#6B1F3A]">
+              カメラで読み取ってね！
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
