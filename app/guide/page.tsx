@@ -158,7 +158,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
         {/* 待ち時間・現在案内中バナー */}
         <div className="bg-white/20 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-center w-full">
-          <div className="text-sm font-bold space-y-1">
+          <div className="text-base font-bold space-y-1">
             <div>
               待ち時間目安:
               {currentNumber === null ? (
