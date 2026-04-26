@@ -51,14 +51,31 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
+    let isMounted = true;
 
-    // 認証状態を監視して、認証完了後にリスナーを登録
+    // Step 1: APIから初期データを取得（高速）
+    const fetchInitialData = async () => {
+      try {
+        const response = await fetch(`/api/tickets?id=${exhibit.id}`);
+        if (response.ok && isMounted) {
+          const data = await response.json();
+          setTicketData({
+            nowServing: data.nowServing ?? null,
+            currentNumber: data.currentNumber ?? null,
+            distributionEnabled: data.distributionEnabled ?? DEFAULTS.distributionEnabled,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch initial ticket data:", error);
+      }
+    };
+
+    // Step 2: 認証完了後、リアルタイム更新をリッスン
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // 認証完了後、Firestoreリスナーを登録
         const ref = doc(db, CONFIG.firebase.ticketsCollection, exhibit.id);
         unsubscribe = onSnapshot(ref, (snap) => {
-          if (snap.exists()) {
+          if (snap.exists() && isMounted) {
             setTicketData({
               nowServing: snap.data().nowServing ?? null,
               currentNumber: snap.data().currentNumber ?? null,
@@ -69,7 +86,11 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       }
     });
 
+    // 初期データ取得を開始
+    fetchInitialData();
+
     return () => {
+      isMounted = false;
       unsubscribeAuth();
       if (unsubscribe) unsubscribe();
     };
