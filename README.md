@@ -20,59 +20,6 @@
 
 ---
 
-## 技術スタック
-
-| 技術 | 用途 |
-|---|---|
-| Next.js 16 (App Router) | フレームワーク・サーバーアクション |
-| React 19 | UIコンポーネント |
-| TypeScript | 型安全な開発 |
-| Tailwind CSS | スタイリング |
-| Firebase (Firestore) | リアルタイムデータ管理 |
-| LINE LIFF | LINEログイン・ユーザー識別 |
-| LINE Messaging API | プッシュ通知 |
-| Framer Motion | アニメーション |
-| Vercel | デプロイ・ホスティング |
-
----
-
-## システム構成
-
-```
-来場者
-  └─ QRコードをスキャン
-  └─ LINE LIFF でログイン
-  └─ 整理券を取得（Firestoreに記録）
-  └─ リアルタイムで待ち状況を確認
-  └─ 順番が来たらLINE通知を受信
-
-運営スタッフ
-  └─ 管理者画面（パスワード認証）にアクセス
-  └─ 「次の番号を呼ぶ」ボタンを押す
-  └─ Firestoreが更新 → 全来場者の画面がリアルタイムに変わる
-  └─ サーバーアクション経由でLINE通知が送信される
-```
-
----
-
-## ディレクトリ構成
-
-```
-app/
-├── page.tsx              # 来場者向け：整理券取得・待ち状況画面
-├── guide/page.tsx        # 案内用：QRコードと待ち時間の一覧
-├── admin/page.tsx        # 運営向け：呼び出し管理画面
-├── actions/
-│   └── notify.ts         # サーバーアクション（LINE通知）
-├── lib/
-│   ├── firebase.ts       # Firebase接続設定
-│   └── proxy.ts          # LINE API呼び出し処理
-
-middleware.ts             # /admin へのBasic認証
-```
-
----
-
 ## セットアップ
 
 ### 1. リポジトリをクローン
@@ -164,6 +111,35 @@ LINE内で「順番になりました」という通知を受け取るまで自�
 
 ---
 
+### 📺 案内画面（スタッフ向け）
+
+企画場所の受付に掲示するモニター用の画面です。来場者の整理券状況がリアルタイムに更新されます。
+
+#### 企画詳細（Project）
+https://seimitsu-ticket.vercel.app/guide/project
+
+![Project詳細](docs/screenshots/09-guide-project.png)
+
+Project企画の整理券一覧が表示されます。
+
+#### 企画詳細（142号室）
+https://seimitsu-ticket.vercel.app/guide/142
+
+![142号室詳細](docs/screenshots/10-guide-142.png)
+
+#### 企画詳細（146号室）
+https://seimitsu-ticket.vercel.app/guide/146
+
+![146号室詳細](docs/screenshots/11-guide-146.png)
+
+**表示内容：**
+- 企画名と場所
+- 現在案内中の番号
+- 待ち人数
+- 待ち時間目安
+
+---
+
 ### ⚙️ 管理画面（運営向け）
 
 パスワード認証後、管理者が整理券の進行状況を管理します。
@@ -208,6 +184,89 @@ LINE Official Accountをフォローすると最初に送信される案内メ�
 
 ---
 
+## トラブルシューティング
+
+### LINE認証がうまくいかない場合
+- LINE Official Accountが正しく設定されているか確認
+- `NEXT_PUBLIC_FIREBASE_*` が正しく設定されているか確認
+- ブラウザのCookieをクリアして再度試す
+
+### 管理画面にアクセスできない
+- パスワードが正しく設定されているか確認（`.env.local` の `ADMIN_PASSWORD`）
+- ブラウザのBasic認証キャッシュをクリアする
+
+### 整理券番号が重複している場合
+- Firestore トランザクションのタイムアウト
+- Firebase コンソールで `tickets` コレクションの状態を確認
+- 必要に応じて手動でリセット
+
+---
+
+## デプロイ
+
+このプロジェクトは Vercel にデプロイされています。
+
+```bash
+git push origin main
+```
+
+Vercel の自動デプロイが有効になっている場合、プッシュと同時にデプロイが開始されます。
+
+---
+
+## 技術スタック
+
+| 技術 | 用途 |
+|---|---|
+| Next.js 16 (App Router) | フレームワーク・サーバーアクション |
+| React 19 | UIコンポーネント |
+| TypeScript | 型安全な開発 |
+| Tailwind CSS | スタイリング |
+| Firebase (Firestore) | リアルタイムデータ管理 |
+| LINE LIFF | LINEログイン・ユーザー識別 |
+| LINE Messaging API | プッシュ通知 |
+| Framer Motion | アニメーション |
+| Vercel | デプロイ・ホスティング |
+
+---
+
+## システム構成
+
+```
+来場者
+  └─ QRコードをスキャン
+  └─ LINE LIFF でログイン
+  └─ 整理券を取得（Firestoreに記録）
+  └─ リアルタイムで待ち状況を確認
+  └─ 順番が来たらLINE通知を受信
+
+運営スタッフ
+  └─ 管理者画面（パスワード認証）にアクセス
+  └─ 「次の番号を呼ぶ」ボタンを押す
+  └─ Firestoreが更新 → 全来場者の画面がリアルタイムに変わる
+  └─ サーバーアクション経由でLINE通知が送信される
+```
+
+---
+
+## ディレクトリ構成
+
+```
+app/
+├── page.tsx              # 来場者向け：整理券取得・待ち状況画面
+├── guide/page.tsx        # 案内用：QRコードと待ち時間の一覧
+├── admin/page.tsx        # 運営向け：呼び出し管理画面
+├── actions/
+│   └── notify.ts         # サーバーアクション（LINE通知）
+├── lib/
+│   ├── firebase.ts       # Firebase接続設定
+│   └── proxy.ts          # LINE API呼び出し処理
+
+middleware.ts             # /admin へのBasic認証
+```
+
+---
+
 ## 工夫した点
 
 - **トランザクション処理** — 同時に複数人が整理券を取得しても番号が重複しないよう、Firestoreのトランザクションで排他制御を実装
@@ -243,36 +302,6 @@ users/
 1. Firebase Console にアクセス
 2. `users` コレクションを選択 → すべてのドキュメントを削除
 3. `tickets` コレクションの `currentNumber` を 0 にリセット
-
----
-
-## トラブルシューティング
-
-### LINE認証がうまくいかない場合
-- LINE Official Accountが正しく設定されているか確認
-- `NEXT_PUBLIC_FIREBASE_*` が正しく設定されているか確認
-- ブラウザのCookieをクリアして再度試す
-
-### 管理画面にアクセスできない
-- パスワードが正しく設定されているか確認（`.env.local` の `ADMIN_PASSWORD`）
-- ブラウザのBasic認証キャッシュをクリアする
-
-### 整理券番号が重複している場合
-- Firestore トランザクションのタイムアウト
-- Firebase コンソールで `tickets` コレクションの状態を確認
-- 必要に応じて手動でリセット
-
----
-
-## デプロイ
-
-このプロジェクトは Vercel にデプロイされています。
-
-```bash
-git push origin main
-```
-
-Vercel の自動デプロイが有効になっている場合、プッシュと同時にデプロイが開始されます。
 
 ---
 
