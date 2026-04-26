@@ -6,6 +6,20 @@ import { doc, onSnapshot, setDoc, getDoc } from "firebase/firestore";
 import { signInAnonymously } from "firebase/auth";
 import { notifyUser } from "../actions/notify";
 
+// 企画IDから名前へのマッピング
+const EXHIBIT_NAMES: Record<string, string> = {
+  "pong": "せいみつPONG!",
+  "shooting": "お絵描きシューティング",
+  "tank": "ARタンク",
+  "room": "現実拡張空間",
+  "truck": "ジャングル・スコープ",
+  "soccer": "スーパーロボットサッカー",
+  "chess": "ロボットチェス",
+  "arm": "ワームホールロボットアーム",
+  "switch": "せいみつスイッチ",
+  "kikaku-a": "企画A",
+};
+
 export default function AdminPage() {
   const exhibitId =
     typeof window !== "undefined"
@@ -136,9 +150,11 @@ export default function AdminPage() {
     }
   };
 
+  const exhibitName = EXHIBIT_NAMES[exhibitId] || exhibitId;
+
   return (
     <main className="p-8 bg-black text-white min-h-screen text-center flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitId}）</h1>
+      <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitName}）</h1>
 
       {/* エラー表示 */}
       {error && (
@@ -148,7 +164,7 @@ export default function AdminPage() {
       )}
 
       {/* 現在案内中（メイン） */}
-      <div className="mb-8">
+      <div className="mb-12">
         <p className="text-slate-400 text-sm mb-3 uppercase tracking-widest">
           Currently Serving
         </p>
@@ -158,9 +174,11 @@ export default function AdminPage() {
           </div>
           <div className="text-4xl text-blue-200 mt-2">番</div>
         </div>
-        <p className="text-slate-500 text-xs mt-4 uppercase tracking-widest">
-          配布済み：{nowServing}番
-        </p>
+        <div className="bg-white/10 backdrop-blur border border-white/20 rounded-2xl px-8 py-4 mt-6 inline-block">
+          <p className="text-2xl font-black text-blue-200">
+            配布済み： <span className="text-4xl text-white">{nowServing}番</span>
+          </p>
+        </div>
       </div>
 
       <button
@@ -172,37 +190,35 @@ export default function AdminPage() {
         {loading ? "更新中..." : "次の番号を呼ぶ"}
       </button>
 
-      {/* 配布モード切り替え */}
-      <div className="flex gap-4 mb-8">
-        <button
-          onClick={() => toggleDistribution(true)}
-          disabled={toggleLoading}
-          className={`px-8 py-4 rounded-xl text-lg font-bold transition-all shadow-lg
-            ${distributionEnabled
-              ? "bg-green-600 hover:bg-green-500 active:scale-95"
-              : "bg-slate-700 hover:bg-slate-600 active:scale-95"
-            }
-            ${toggleLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          {toggleLoading ? "更新中..." : "配布モード ON"}
-        </button>
-        <button
-          onClick={() => toggleDistribution(false)}
-          disabled={toggleLoading}
-          className={`px-8 py-4 rounded-xl text-lg font-bold transition-all shadow-lg
-            ${!distributionEnabled
-              ? "bg-orange-600 hover:bg-orange-500 active:scale-95"
-              : "bg-slate-700 hover:bg-slate-600 active:scale-95"
-            }
-            ${toggleLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          {toggleLoading ? "更新中..." : "配布モード OFF"}
-        </button>
+      {/* 配布モード切り替え（トグルスイッチ） */}
+      <div className="flex flex-col items-center gap-6 mb-12">
+        <div className="flex items-center gap-6">
+          <span className={`text-lg font-bold transition-colors ${distributionEnabled ? "text-white" : "text-slate-400"}`}>
+            配布中
+          </span>
+          <button
+            onClick={() => toggleDistribution(!distributionEnabled)}
+            disabled={toggleLoading}
+            className={`relative w-24 h-12 rounded-full transition-all shadow-lg ${
+              distributionEnabled
+                ? "bg-green-600 hover:bg-green-500"
+                : "bg-orange-600 hover:bg-orange-500"
+            } ${toggleLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            <div
+              className={`absolute top-1 w-10 h-10 rounded-full bg-white transition-transform duration-300 ${
+                distributionEnabled ? "translate-x-1" : "translate-x-13"
+              }`}
+            />
+          </button>
+          <span className={`text-lg font-bold transition-colors ${!distributionEnabled ? "text-white" : "text-slate-400"}`}>
+            案内中
+          </span>
+        </div>
+        <p className="text-slate-400 text-sm">
+          {toggleLoading ? "更新中..." : `現在: ${distributionEnabled ? "配布中" : "案内中"}`}
+        </p>
       </div>
-
-      <p className="text-slate-400 text-sm mb-12">
-        配布モード: {distributionEnabled ? "配布中" : "案内中"}
-      </p>
 
       <p className="mt-8 text-slate-500 text-xs uppercase tracking-tighter">
         Admin Console for Precision Lab.
