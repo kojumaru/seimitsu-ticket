@@ -309,34 +309,38 @@ export default function TicketPage() {
             {/* グリッド */}
             <div className="grid grid-cols-2 gap-2.5 mb-5">
               <div>
-                <div className="text-xs font-medium mb-1.5">現在案内中：</div>
-                <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none mb-2.5">
-                  {currentNumber === null ? (
-                    <span className="text-lg">取得中...</span>
-                  ) : (
-                    <>
-                      <span>~</span>
-                      <span>{currentNumber}</span>
-                      <span className="text-sm font-bold ml-1">番</span>
-                    </>
-                  )}
+                <div className="flex justify-between mb-1.5">
+                  <div className="text-xs font-medium">現在案内中：</div>
+                  <div className="text-xs font-medium">待ち時間目安：</div>
                 </div>
-                <div className="text-xs font-medium mb-1.5">待ち時間目安：</div>
-                <div className="bg-[#4F1128] rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                  {currentNumber === null ? (
-                    <span className="text-lg">取得中</span>
-                  ) : (
-                    <>
-                      <span className="text-lg">約</span>
-                      <span className="mx-1">
-                        {nowServing !== null && currentNumber !== null
-                          ? currentInfo.timePerPerson *
-                            Math.max(0, nowServing - currentNumber)
-                          : "取得中"}
-                      </span>
-                      <span className="text-lg">分</span>
-                    </>
-                  )}
+                <div className="bg-[#4F1128] rounded aspect-square overflow-hidden flex flex-col">
+                  <div className="flex-1 flex items-center justify-center text-[42px] font-bold leading-none border-b-2 border-[#6B1F3A]">
+                    {currentNumber === null ? (
+                      <span className="text-lg">取得中...</span>
+                    ) : (
+                      <>
+                        <span>~</span>
+                        <span>{currentNumber}</span>
+                        <span className="text-sm font-bold ml-1">番</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex-1 flex items-center justify-center text-[42px] font-bold leading-none">
+                    {currentNumber === null ? (
+                      <span className="text-lg">取得中</span>
+                    ) : (
+                      <>
+                        <span className="text-lg">約</span>
+                        <span className="mx-1">
+                          {nowServing !== null && currentNumber !== null
+                            ? currentInfo.timePerPerson *
+                              Math.max(0, nowServing - currentNumber)
+                            : "取得中"}
+                        </span>
+                        <span className="text-lg">分</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
               {!ready ? (
