@@ -57,6 +57,7 @@ const EXHIBIT_INFO: Record<
     name: "スーパーロボットサッカー",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/soccer.png",
     illustration: (
       <svg viewBox="0 0 90 80" width="86" height="76">
         <g
@@ -93,6 +94,7 @@ const EXHIBIT_INFO: Record<
     name: "ロボットチェス",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/chess.png",
     illustration: (
       <svg viewBox="0 0 100 100" width="62%" height="62%">
         <g
@@ -112,6 +114,7 @@ const EXHIBIT_INFO: Record<
     name: "ロボットアーム",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
+    imageUrl: "/images/arm.png",
     illustration: (
       <svg viewBox="0 0 100 100" width="70%" height="70%">
         <g
