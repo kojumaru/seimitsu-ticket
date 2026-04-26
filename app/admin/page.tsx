@@ -185,7 +185,7 @@ export default function AdminPage() {
         <p className="text-slate-400 text-sm mb-3 uppercase tracking-widest">
           呼び出し済み番号
         </p>
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-16 rounded-3xl border-2 border-blue-400 shadow-2xl shadow-blue-500/50 animate-pulse">
+        <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-16 rounded-3xl border-2 border-blue-400 shadow-2xl shadow-blue-500/50">
           <div className="text-[10rem] font-mono font-bold text-white leading-none">
             ~{currentNumber}
           </div>
