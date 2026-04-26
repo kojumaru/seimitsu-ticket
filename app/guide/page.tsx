@@ -17,7 +17,7 @@ const EXHIBITS = [
   },
   {
     id: "chess",
-    name: "ロボットチェス",
+    name: "ロボット\nチェス",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/chess.png",
@@ -25,7 +25,7 @@ const EXHIBITS = [
   },
   {
     id: "arm",
-    name: "ロボットアーム",
+    name: "ロボット\nアーム",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/arm.png",
@@ -33,7 +33,7 @@ const EXHIBITS = [
   },
   {
     id: "switch",
-    name: "せいみつスイッチ",
+    name: "せいみつ\nスイッチ",
     location: "14号館 3階プロジェクト室",
     timePerPerson: 5,
     imageUrl: "/images/switch.png",
@@ -68,7 +68,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       style={{ filter: "drop-shadow(0 16px 32px rgba(0,0,0,0.25))" }}
     >
       {/* チケット上部（ダークレッド） */}
-      <div className="bg-[#6B1F3A] px-4 pt-4 pb-6 relative overflow-hidden">
+      <div className="bg-[#6B1F3A] px-4 pt-4 pb-6 relative overflow-hidden rounded-t-3xl">
         {/* 側面ノッチ（切り込み）*/}
         <div
           className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
@@ -118,7 +118,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 
         {/* タイトル */}
         <h2
-          className="text-2xl font-black leading-tight mb-3 whitespace-pre-line text-center"
+          className="text-2xl font-black leading-tight mb-3 whitespace-pre-line text-center min-h-16 flex items-center justify-center"
           style={{ letterSpacing: "0.02em" }}
         >
           {exhibit.name}
@@ -160,19 +160,16 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
         <div className="bg-white/20 backdrop-blur rounded-xl px-3 py-2.5 mb-3 text-center">
           <div className="text-sm font-bold">
             {currentNumber === null ? (
-              <span>待ち人数: 取得中...</span>
+              <span>待ち時間目安: 取得中...</span>
             ) : (
-              <span>待ち人数: {waitCount} 人</span>
+              <span>待ち時間目安: {waitCount !== null ? exhibit.timePerPerson * waitCount : "取得中"}分</span>
             )}
           </div>
         </div>
 
         {/* フッター */}
-        <div className="text-center text-xs font-medium text-white/80 space-y-1">
-          <div>
-            現在案内中: {currentNumber === null ? "取得中..." : currentNumber}番
-          </div>
-          <div>待ち時間目安: {exhibit.timePerPerson}分</div>
+        <div className="text-center text-xs font-medium text-white/80">
+          現在案内中: {currentNumber === null ? "取得中..." : currentNumber}番
         </div>
       </div>
 
@@ -188,7 +185,7 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
       />
 
       {/* チケット下部（クリーム色） */}
-      <div className="bg-[#F2E7E0] px-4 py-4 flex flex-col items-center gap-2">
+      <div className="bg-[#F2E7E0] px-4 py-4 flex flex-col items-center gap-2 rounded-b-3xl">
         <div className="bg-white p-2.5 rounded-lg">
           <QRCodeSVG value={url} size={100} />
         </div>
@@ -211,7 +208,7 @@ export default function GuidePage() {
       `}</style>
 
       {/* ヘッダーバナー */}
-      <div className="bg-[#A64C60] px-8 py-8 border-b-8 border-[#6B1F3A]">
+      <div className="bg-[#A64C60] px-8 py-8">
         <div className="w-full max-w-7xl mx-auto flex justify-between items-start gap-8">
           {/* 左側 */}
           <div className="flex-1">
