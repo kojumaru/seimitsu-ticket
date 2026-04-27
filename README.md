@@ -36,9 +36,21 @@
 
 ### 管理者画面（呼び出し操作用）
 
-https://seimitsu-ticket.vercel.app/admin
+URLに `?exhibitId=xxx` をつけてアクセスする。
 
-Basic認証あり。ユーザー名 `admin`、パスワードは別途共有。
+| 企画名 | URL |
+|---|---|
+| スーパーロボットサッカー | https://seimitsu-ticket.vercel.app/admin?exhibitId=soccer |
+| ロボットチェス | https://seimitsu-ticket.vercel.app/admin?exhibitId=chess |
+| ワームホールロボットアーム | https://seimitsu-ticket.vercel.app/admin?exhibitId=arm |
+| せいみつスイッチ | https://seimitsu-ticket.vercel.app/admin?exhibitId=switch |
+| せいみつPONG! | https://seimitsu-ticket.vercel.app/admin?exhibitId=pong |
+| お絵描きシューティング | https://seimitsu-ticket.vercel.app/admin?exhibitId=shooting |
+| ARタンク | https://seimitsu-ticket.vercel.app/admin?exhibitId=tank |
+| 現実拡張空間 | https://seimitsu-ticket.vercel.app/admin?exhibitId=room |
+| ジャングル・スコープ | https://seimitsu-ticket.vercel.app/admin?exhibitId=truck |
+
+Basic認証あり。ユーザー名 `admin`、パスワードはVercel環境変数 `ADMIN_PASSWORD` で管理（Vercel転送時に引き継がれる。変更する場合は Vercel Dashboard → Settings → Environment Variables）。
 
 「次の番号を呼ぶ」ボタンを押すだけで、次の来場者にLINE通知が送られる。「整理券配布中 / 整理券なし」トグルで配布の開始・停止も可能。
 
