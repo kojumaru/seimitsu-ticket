@@ -20,7 +20,194 @@
 
 ---
 
-## セットアップ
+## 運営時の使い方
+
+システムを使うだけなら、以下の2つのURLを開くだけでよい。
+
+### 案内画面（モニター掲示用）
+
+企画場所のモニターで以下のURLを開く。来場者がQRをスキャンして整理券を取得できる。
+
+| 企画場所 | URL |
+|---|---|
+| プロジェクト室 | https://seimitsu-ticket.vercel.app/guide/project |
+| 142号室 | https://seimitsu-ticket.vercel.app/guide/142 |
+| 146号室 | https://seimitsu-ticket.vercel.app/guide/146 |
+
+### 管理者画面（呼び出し操作用）
+
+https://seimitsu-ticket.vercel.app/admin
+
+Basic認証あり。ユーザー名 `admin`、パスワードは別途共有。
+
+「次の番号を呼ぶ」ボタンを押すだけで、次の来場者にLINE通知が送られる。「整理券配布中 / 整理券なし」トグルで配布の開始・停止も可能。
+
+---
+
+## システムの仕組み
+
+### 1. モニター表示（guide画面）
+
+企画場所に設置したモニターで guide 画面を開く。各企画カードに LIFF URL（`?exhibitId=xxx`）が埋め込まれたQRコードが表示される。Firestoreの `tickets/{exhibitId}` を `onSnapshot` でリアルタイム監視しており、待ち人数・待ち時間目安・案内中番号が自動更新される。
+
+<img src="docs/screenshots/09-guide-project.png" width="250" alt="モニター掲示画面（Project企画）">
+<img src="docs/screenshots/10-guide-142.png" width="250" alt="モニター掲示画面（142号室）">
+<img src="docs/screenshots/11-guide-146.png" width="250" alt="モニター掲示画面（146号室）">
+
+`distributionEnabled: false` の場合はQRコードが非表示になり「案内中」メッセージに切り替わる。
+
+---
+
+### 2. 来場者がQRをスキャン → 整理券取得
+
+QRをスキャンするとLINEアプリ内でLIFFページが開き、LINEログインが走る。同時にFirebase匿名認証（`signInAnonymously`）も実行され、Firestoreへのアクセス権を取得する。
+
+<img src="docs/screenshots/01-ticket-before.jpg" width="250" alt="整理券取得ページ">
+
+「整理券を受け取る」をタップすると、Firestoreトランザクションで以下が原子的に実行される：
+
+- `tickets/{exhibitId}` の `nowServing` をインクリメント（重複防止）
+- `users/{userId}/myTickets/{exhibitId}` に整理券番号・発行時刻を記録
+- `active_tickets/{exhibitId}_{ticketNumber}` に userId を登録（呼び出し時の通知先として使用）
+
+発行完了後、サーバーアクション経由でLINEに取得確認メッセージを送信。
+
+<img src="docs/screenshots/02-ticket-obtained.jpg" width="250" alt="整理券取得済み">
+
+<img src="docs/screenshots/04-line-confirmation.jpg" width="250" alt="整理券取得確認のLINEメッセージ">
+
+LINE Official Accountをフォローした時点でウェルカムメッセージも自動送信される。
+
+<img src="docs/screenshots/06-line-welcome.png" width="250" alt="ウェルカムメッセージ">
+
+---
+
+### 3. 管理画面で呼び出し
+
+管理画面（`/admin?exhibitId=xxx`）はBasic認証で保護。ユーザー名 `admin`、パスワードは `.env.local` の `ADMIN_PASSWORD`。
+
+<img src="docs/screenshots/07-admin-switch.png" width="250" alt="管理画面">
+
+「次の番号を呼ぶ」ボタンを押すと以下が実行される：
+
+1. `tickets/{exhibitId}` の `currentNumber` を +1、`currentNumber_called_at`（呼び出し時刻）を記録
+2. `active_tickets/{exhibitId}_{newCurrentNumber}` から `userId` を取得
+3. サーバーアクション経由で該当ユーザーにLINE呼び出し通知を送信
+
+`currentNumber > nowServing` の場合はエラーになり通知は送られない。
+
+「整理券配布中 / 整理券なし」トグルで `distributionEnabled` を切り替えることもできる。
+
+- **OFF にした場合**：`currentNumber` を `nowServing` と同値に更新し、未呼び出し全員に一括LINE通知を送信。guide画面のQRコードが非表示になり新規発行が止まる。
+- **ON に戻した場合**：`distributionEnabled: true` を書き込むだけ。QRコードが再表示される。
+
+---
+
+### 4. 来場者側の画面が自動更新 → LINE通知
+
+来場者のページは `onSnapshot` で `tickets/{exhibitId}` を監視しているため、`currentNumber` が更新されると即座に「順番になりました！」に切り替わる。同時にLINEにも呼び出し通知が届く。呼び出しから1時間以内に来場しなければ失効扱い。
+
+<img src="docs/screenshots/03-ticket-called.jpg" width="250" alt="順番が来た時の画面">
+
+<img src="docs/screenshots/05-line-notification.jpg" width="250" alt="呼び出し通知のLINEメッセージ">
+
+---
+
+## 引き継ぎ手順
+
+次年度や別の担当者にシステムを引き継ぐ際の手順。
+
+### 1. Firebase のアクセス権を付与する
+
+Firebase Console → 左上の歯車アイコン「プロジェクトの設定」→「ユーザーと権限」タブ → 「メンバーを追加」
+
+引き継ぎ先の Google アカウントのメールアドレスを入力し、役割を選択して追加する。
+
+| 役割 | 権限 |
+|---|---|
+| オーナー | 全権限（プロジェクト削除も可） |
+| 編集者 | 設定変更・データ操作が可能（推奨） |
+| 閲覧者 | 読み取りのみ |
+
+### 2. Vercel のアクセス権を付与する
+
+**① 引き継ぎ先が Vercel アカウントを作成する**
+
+https://vercel.com にアクセスし、GitHub アカウントでサインアップする。
+
+**② プロジェクトを転送する**
+
+現在のオーナーが以下の手順でプロジェクトを転送する：
+
+Vercel Dashboard → `seimitsu-ticket` → Settings → General → 「Transfer」ボタン
+
+転送先のVercelアカウントのユーザー名またはメールアドレスを入力して転送する。環境変数（`LINE_CHANNEL_ACCESS_TOKEN` / `ADMIN_PASSWORD` / `NEXT_PUBLIC_FIREBASE_*`）もそのまま引き継がれる。
+
+### 3. 管理者権限を付与する（Firestore）
+
+Firebase Console → Firestore → `admins` コレクション → 「ドキュメントを追加」
+
+引き継ぎ先のスタッフの UID をドキュメント ID として追加する。UID は Firebase Console → Authentication → Users から確認できる（管理画面 `/admin` に一度アクセスしてもらえば自動でユーザー登録される）。
+
+```
+admins/
+  {引き継ぎ先のUID}
+    name: "担当者名"
+```
+
+### 4. GitHub リポジトリのアクセス権を付与する
+
+GitHub → リポジトリページ → Settings → Collaborators → 「Add people」
+
+引き継ぎ先の GitHub アカウントを追加する。
+
+### 5. LINE のアクセス権を移譲する
+
+**① LINE Official Account Manager（公式LINEの管理）**
+
+manager.line.biz → 設定 → 権限管理 → 権限の種類を「管理者」に選択 → 「URLを発行」
+
+発行されたURLを引き継ぎ先のLINEに送り、承認してもらう。承認確認後、自分のアカウントを権限リストから削除する。
+
+> URLは24時間で失効するため、すぐに開いてもらうこと。
+
+**② LINE Developers Console（LIFF・Messaging APIの設定）**
+
+developers.line.biz → プロバイダー → チャンネル → 「Members」タブ → 引き継ぎ先のLINEアカウントを追加 → 自分を削除
+
+---
+
+### 6. Firestoreの初期データをリセットする
+
+新年度の開始前に、前年のデータをリセットする。
+
+> **注意：** Firebase Console へのアクセスには、事前に手順 1. でメンバー追加してもらう必要がある。
+
+[Firebase Console](https://console.firebase.google.com) → `seimitsu-ticket` プロジェクト → Firestore Database
+
+1. `users` コレクション → すべてのドキュメントを削除
+2. `active_tickets` コレクション → すべてのドキュメントを削除
+3. `tickets` コレクション → 各ドキュメントの `currentNumber` と `nowServing` を `0`、`distributionEnabled` を `true` にリセット
+
+**ドキュメントID**（exhibitId）と対応する企画：
+
+| exhibitId | 企画名 |
+|---|---|
+| soccer | スーパーロボットサッカー |
+| chess | ロボットチェス |
+| arm | ワームホールロボットアーム |
+| switch | せいみつスイッチ |
+| pong | せいみつPONG! |
+| shooting | お絵描きシューティング |
+| tank | ARタンク |
+| room | 現実拡張空間 |
+| truck | ジャングル・スコープ |
+
+---
+
+## 開発環境のセットアップ
+
+コードを変更・拡張する場合のローカル環境構築手順。
 
 ### 1. リポジトリをクローン
 
@@ -32,7 +219,7 @@ npm install
 
 ### 2. 環境変数を設定
 
-`.env.example` をコピーして `.env.local` を作成し、各値を入力してください。
+`.env.example` をコピーして `.env.local` を作成し、各値を入力する。
 
 ```bash
 cp .env.example .env.local
@@ -43,174 +230,58 @@ cp .env.example .env.local
 - `LINE_CHANNEL_ACCESS_TOKEN` — LINE Official Accountのトークン
 - `ADMIN_PASSWORD` — 管理者画面のパスワード
 
-### 3. Firestoreの初期データ
+### 3. 動作確認
 
-`tickets` コレクションに企画ごとのドキュメントを作成してください。
-
-```
-tickets/{exhibitId}
-  currentNumber: 0
-  nowServing: 0
-```
-
-### 4. 開発サーバーを起動
+ローカルで素早く確認する場合（Vercelのデプロイを待たずに手元で確認できる）：
 
 ```bash
 npm run dev
 ```
 
-本番環境は Vercel にデプロイされています：https://seimitsu-ticket.vercel.app
+`http://localhost:3000` でアプリが起動する。
+
+変更をそのまま本番に反映したい場合は push するだけでよい。Vercel が自動でビルド・デプロイする。
+
+本番URL：https://seimitsu-ticket.vercel.app
 
 ---
 
-## 使い方ガイド
+## Firebase設定
 
-### 📱 来場者向け（整理券取得画面）
+### Firestoreコレクション構成
 
-#### 1. QRコードをスキャン
-企画場所に掲示されたQRコードをスマートフォンのカメラで読み込みます。
+```
+tickets/
+├── {exhibitId}/
+│   ├── currentNumber: Number (呼び出し済みの番号)
+│   ├── nowServing: Number (発行済みの最大番号)
+│   └── distributionEnabled: Boolean
 
-![整理券取得前](docs/screenshots/01-ticket-before.jpg)
+users/
+├── {userId}/
+│   └── myTickets/
+│       └── {exhibitId}/
+│           ├── ticketNumber: Number
+│           └── timestamp: Timestamp
 
-#### 2. 整理券の状況を確認
-スキャン後、LINE内で自動的にブラウザが開き、現在の整理券状況が表示されます。
+active_tickets/
+├── {exhibitId}_{ticketNumber}/
+│   └── userId: String
 
-**表示情報：**
-- **現在案内中** — 現在案内されている番号
-- **待ち時間目安** — 目安となる待ち時間
-- **待ち人数** — 自分より前に並んでいる人数
-
-#### 3. 「整理券を受け取る」ボタンをタップ
-ボタンをタップすると、整理券が発行されます。
-
-![整理券取得済み](docs/screenshots/02-ticket-obtained.jpg)
-
-#### 4. 整理券番号を確認
-取得した整理券の番号が表示されます。この番号はLINEからも送信されます。
-
-**重要：** 一度取得した整理券は有効です。ページを閉じても大丈夫です。
-
-#### 5. 順番が来るまで待機
-LINE内で「順番になりました」という通知を受け取るまで自由に行動できます。
-
-![順番が来た時](docs/screenshots/03-ticket-called.jpg)
-
-**「順番になりました！」と表示されたら：**
-- 15分以内に企画場所へ向かう必要があります
-- 15分以上経過すると整理券は無効になります
-
-#### 6. LINE通知を確認
-順番が来ると、LINE Official Accountから通知が届きます。
-
-![確認メッセージ](docs/screenshots/04-line-confirmation.jpg)
-
-![呼び出し通知](docs/screenshots/05-line-notification.jpg)
-
-#### 7. 企画場所へ移動
-通知に記載された場所へ向かいます。
-
----
-
-### 📺 案内画面（スタッフ向け）
-
-企画場所の受付に掲示するモニター用の画面です。来場者の整理券状況がリアルタイムに更新されます。
-
-#### 企画詳細（Project）
-https://seimitsu-ticket.vercel.app/guide/project
-
-![Project詳細](docs/screenshots/09-guide-project.png)
-
-Project企画の整理券一覧が表示されます。
-
-#### 企画詳細（142号室）
-https://seimitsu-ticket.vercel.app/guide/142
-
-![142号室詳細](docs/screenshots/10-guide-142.png)
-
-#### 企画詳細（146号室）
-https://seimitsu-ticket.vercel.app/guide/146
-
-![146号室詳細](docs/screenshots/11-guide-146.png)
-
-**表示内容：**
-- 企画名と場所
-- 現在案内中の番号
-- 待ち人数
-- 待ち時間目安
-
----
-
-### ⚙️ 管理画面（運営向け）
-
-パスワード認証後、管理者が整理券の進行状況を管理します。
-
-#### 管理画面へのアクセス
-https://seimitsu-ticket.vercel.app/admin
-
-![管理画面（せいみつスイッチ）](docs/screenshots/07-admin-switch.png)
-
-**ログイン方法：**
-- ユーザー名: `admin`
-- パスワード: `.env.local` の `ADMIN_PASSWORD` の値
-
-**機能：**
-- 各企画の「次の番号を呼ぶ」ボタン
-- ボタンをクリックすると自動的にLINE通知が送信される
-- リアルタイムに全ページが更新される
-
-**使い方：**
-1. 管理画面にログイン
-2. 呼び出したい企画の「次の番号」をクリック
-3. 来場者のLINEに自動で通知が届く
-
----
-
-## LINE通知メッセージ
-
-### 整理券取得時
-![整理券取得確認](docs/screenshots/04-line-confirmation.jpg)
-
-整理券が取得できたことをユーザーに通知し、ページを再度開くためのリンクを送信します。
-
-### 順番が来た時
-![呼び出し通知](docs/screenshots/05-line-notification.jpg)
-
-現在の番号と企画場所を通知します。15分以内に企画場所へ向かう必要があります。
-
-### ウェルカムメッセージ
-![ウェルカムメッセージ](docs/screenshots/06-line-welcome.png)
-
-LINE Official Accountをフォローすると最初に送信される案内メッセージです。
-
----
-
-## トラブルシューティング
-
-### LINE認証がうまくいかない場合
-- LINE Official Accountが正しく設定されているか確認
-- `NEXT_PUBLIC_FIREBASE_*` が正しく設定されているか確認
-- ブラウザのCookieをクリアして再度試す
-
-### 管理画面にアクセスできない
-- パスワードが正しく設定されているか確認（`.env.local` の `ADMIN_PASSWORD`）
-- ブラウザのBasic認証キャッシュをクリアする
-
-### 整理券番号が重複している場合
-- Firestore トランザクションのタイムアウト
-- Firebase コンソールで `tickets` コレクションの状態を確認
-- 必要に応じて手動でリセット
+admins/
+├── {uid}/
+│   └── name: String
+```
 
 ---
 
 ## デプロイ
 
-このプロジェクトは Vercel にデプロイされています。
-
 ```bash
 git push origin main
 ```
 
-Vercel の自動デプロイが有効になっている場合、プッシュと同時にデプロイが開始されます。
+Vercel の自動デプロイが有効になっているため、プッシュと同時にデプロイが開始される。
 
 ---
 
@@ -227,25 +298,6 @@ Vercel の自動デプロイが有効になっている場合、プッシュと�
 | LINE Messaging API | プッシュ通知 |
 | Framer Motion | アニメーション |
 | Vercel | デプロイ・ホスティング |
-
----
-
-## システム構成
-
-```
-来場者
-  └─ QRコードをスキャン
-  └─ LINE LIFF でログイン
-  └─ 整理券を取得（Firestoreに記録）
-  └─ リアルタイムで待ち状況を確認
-  └─ 順番が来たらLINE通知を受信
-
-運営スタッフ
-  └─ 管理者画面（パスワード認証）にアクセス
-  └─ 「次の番号を呼ぶ」ボタンを押す
-  └─ Firestoreが更新 → 全来場者の画面がリアルタイムに変わる
-  └─ サーバーアクション経由でLINE通知が送信される
-```
 
 ---
 
@@ -275,33 +327,6 @@ middleware.ts             # /admin へのBasic認証
 - **セキュリティ** — 環境変数による機密情報の管理、Basic認証による管理者ページの保護
 - **モバイルファースト** — LINE LIFF専用の小画面にも対応したレスポンシブデザイン
 - **視認性** — 待ち状況が一目でわかるように数字を大きく表示、色分けで状態を区別
-
----
-
-## Firebase設定
-
-### Firestoreコレクション構成
-
-```
-tickets/
-├── {exhibitId}/
-│   ├── currentNumber: Number (次に案内する番号)
-│   └── nowServing: Number (現在案内中の番号)
-
-users/
-├── {userId}/
-│   ├── exhibitId: String
-│   ├── ticketNumber: Number
-│   ├── timestamp: Timestamp
-│   └── served: Boolean
-```
-
-### データのリセット
-
-テストやリセット時は以下の手順を実行：
-1. Firebase Console にアクセス
-2. `users` コレクションを選択 → すべてのドキュメントを削除
-3. `tickets` コレクションの `currentNumber` を 0 にリセット
 
 ---
 
