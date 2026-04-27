@@ -28,11 +28,11 @@
 
 企画場所のモニターで以下のURLを開く。来場者がQRをスキャンして整理券を取得できる。
 
-| 企画場所 | URL |
-|---|---|
+| 企画場所       | URL                                              |
+| -------------- | ------------------------------------------------ |
 | プロジェクト室 | https://seimitsu-ticket.vercel.app/guide/project |
-| 142号室 | https://seimitsu-ticket.vercel.app/guide/142 |
-| 146号室 | https://seimitsu-ticket.vercel.app/guide/146 |
+| 142号室        | https://seimitsu-ticket.vercel.app/guide/142     |
+| 146号室        | https://seimitsu-ticket.vercel.app/guide/146     |
 
 ### 管理者画面（呼び出し操作用）
 
@@ -50,9 +50,9 @@ Basic認証あり。ユーザー名 `admin`、パスワードは別途共有。
 
 企画場所に設置したモニターで guide 画面を開く。各企画カードに LIFF URL（`?exhibitId=xxx`）が埋め込まれたQRコードが表示される。Firestoreの `tickets/{exhibitId}` を `onSnapshot` でリアルタイム監視しており、待ち人数・待ち時間目安・案内中番号が自動更新される。
 
-<img src="docs/screenshots/09-guide-project.png" width="250" alt="モニター掲示画面（Project企画）">
-<img src="docs/screenshots/10-guide-142.png" width="250" alt="モニター掲示画面（142号室）">
-<img src="docs/screenshots/11-guide-146.png" width="250" alt="モニター掲示画面（146号室）">
+<img src="docs/screenshots/09-guide-project.png" width="500" alt="モニター掲示画面（Project企画）">
+<img src="docs/screenshots/10-guide-142.png" width="500" alt="モニター掲示画面（142号室）">
+<img src="docs/screenshots/11-guide-146.png" width="500" alt="モニター掲示画面（146号室）">
 
 `distributionEnabled: false` の場合はQRコードが非表示になり「案内中」メッセージに切り替わる。
 
@@ -123,11 +123,11 @@ Firebase Console → 左上の歯車アイコン「プロジェクトの設定�
 
 引き継ぎ先の Google アカウントのメールアドレスを入力し、役割を選択して追加する。
 
-| 役割 | 権限 |
-|---|---|
-| オーナー | 全権限（プロジェクト削除も可） |
-| 編集者 | 設定変更・データ操作が可能（推奨） |
-| 閲覧者 | 読み取りのみ |
+| 役割     | 権限                               |
+| -------- | ---------------------------------- |
+| オーナー | 全権限（プロジェクト削除も可）     |
+| 編集者   | 設定変更・データ操作が可能（推奨） |
+| 閲覧者   | 読み取りのみ                       |
 
 ### 2. Vercel のアクセス権を付与する
 
@@ -191,17 +191,17 @@ developers.line.biz → プロバイダー → チャンネル → 「Members」
 
 **ドキュメントID**（exhibitId）と対応する企画：
 
-| exhibitId | 企画名 |
-|---|---|
-| soccer | スーパーロボットサッカー |
-| chess | ロボットチェス |
-| arm | ワームホールロボットアーム |
-| switch | せいみつスイッチ |
-| pong | せいみつPONG! |
-| shooting | お絵描きシューティング |
-| tank | ARタンク |
-| room | 現実拡張空間 |
-| truck | ジャングル・スコープ |
+| exhibitId | 企画名                     |
+| --------- | -------------------------- |
+| soccer    | スーパーロボットサッカー   |
+| chess     | ロボットチェス             |
+| arm       | ワームホールロボットアーム |
+| switch    | せいみつスイッチ           |
+| pong      | せいみつPONG!              |
+| shooting  | お絵描きシューティング     |
+| tank      | ARタンク                   |
+| room      | 現実拡張空間               |
+| truck     | ジャングル・スコープ       |
 
 ---
 
@@ -226,6 +226,7 @@ cp .env.example .env.local
 ```
 
 必要な環境変数：
+
 - `NEXT_PUBLIC_FIREBASE_*` — Firebase設定（クライアント側）
 - `LINE_CHANNEL_ACCESS_TOKEN` — LINE Official Accountのトークン
 - `ADMIN_PASSWORD` — 管理者画面のパスワード
@@ -287,17 +288,17 @@ Vercel の自動デプロイが有効になっているため、プッシュと�
 
 ## 技術スタック
 
-| 技術 | 用途 |
-|---|---|
+| 技術                    | 用途                               |
+| ----------------------- | ---------------------------------- |
 | Next.js 16 (App Router) | フレームワーク・サーバーアクション |
-| React 19 | UIコンポーネント |
-| TypeScript | 型安全な開発 |
-| Tailwind CSS | スタイリング |
-| Firebase (Firestore) | リアルタイムデータ管理 |
-| LINE LIFF | LINEログイン・ユーザー識別 |
-| LINE Messaging API | プッシュ通知 |
-| Framer Motion | アニメーション |
-| Vercel | デプロイ・ホスティング |
+| React 19                | UIコンポーネント                   |
+| TypeScript              | 型安全な開発                       |
+| Tailwind CSS            | スタイリング                       |
+| Firebase (Firestore)    | リアルタイムデータ管理             |
+| LINE LIFF               | LINEログイン・ユーザー識別         |
+| LINE Messaging API      | プッシュ通知                       |
+| Framer Motion           | アニメーション                     |
+| Vercel                  | デプロイ・ホスティング             |
 
 ---
 
