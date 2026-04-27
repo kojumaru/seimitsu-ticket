@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { db, auth } from "../lib/firebase";
 import { doc, onSnapshot, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { signInAnonymously } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { notifyUser } from "../actions/notify";
 
 // 企画IDから名前へのマッピング
@@ -27,6 +27,13 @@ export default function AdminPage() {
         "kikaku-a")
       : "kikaku-a";
 
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const [nowServing, setNowServing] = useState(0);
   const [currentNumber, setCurrentNumber] = useState(0);
   const [distributionEnabled, setDistributionEnabled] = useState(true);
@@ -34,40 +41,53 @@ export default function AdminPage() {
   const [toggleLoading, setToggleLoading] = useState(false); // トグル処理中フラグ
   const [error, setError] = useState<string | null>(null);
 
+  // 認証状態の監視
   useEffect(() => {
-    if (!exhibitId) return;
-
-    const initializeData = async () => {
-      // Firebase 匿名認証
-      await signInAnonymously(auth);
-
-      // 認証後にリスナーを設定
-      const ticketRef = doc(db, "tickets", exhibitId);
-      const unsubscribe = onSnapshot(
-        ticketRef,
-        (snap) => {
-          if (snap.exists()) {
-            setNowServing(snap.data().nowServing || 0);
-            setCurrentNumber(snap.data().currentNumber || 0);
-            setDistributionEnabled(snap.data().distributionEnabled ?? true);
-          }
-        },
-        (error) => {
-          console.error("onSnapshot error:", error);
-        },
-      );
-      return unsubscribe;
-    };
-
-    let unsubscribePromise: Promise<any> | null = null;
-    unsubscribePromise = initializeData();
-
-    return () => {
-      if (unsubscribePromise) {
-        unsubscribePromise.then((unsubscribe) => unsubscribe?.());
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user && !user.isAnonymous) {
+        const adminDoc = await getDoc(doc(db, "admins", user.uid));
+        setIsAdmin(adminDoc.exists());
+      } else {
+        setIsAdmin(false);
       }
-    };
-  }, [exhibitId]);
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Firestoreリスナー（管理者認証済みのみ）
+  useEffect(() => {
+    if (!isAdmin || !exhibitId) return;
+
+    const ticketRef = doc(db, "tickets", exhibitId);
+    const unsubscribe = onSnapshot(
+      ticketRef,
+      (snap) => {
+        if (snap.exists()) {
+          setNowServing(snap.data().nowServing || 0);
+          setCurrentNumber(snap.data().currentNumber || 0);
+          setDistributionEnabled(snap.data().distributionEnabled ?? true);
+        }
+      },
+      (error) => {
+        console.error("onSnapshot error:", error);
+      },
+    );
+    return () => unsubscribe();
+  }, [isAdmin, exhibitId]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError(null);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch {
+      setLoginError("メールアドレスまたはパスワードが正しくありません");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   // エラーメッセージを2秒後に自動消去
   const showError = (message: string) => {
@@ -209,6 +229,53 @@ export default function AdminPage() {
 
   const exhibitName = EXHIBIT_NAMES[exhibitId] || exhibitId;
 
+  if (!authChecked) {
+    return (
+      <main className="p-8 bg-[#A64C60]/40 text-white min-h-screen flex items-center justify-center">
+        <p>認証確認中...</p>
+      </main>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <main className="p-8 bg-[#A64C60]/40 text-white min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold mb-8">管理者ログイン</h1>
+        <form onSubmit={handleLogin} className="flex flex-col gap-4 w-80">
+          <input
+            type="email"
+            placeholder="メールアドレス"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-white"
+          />
+          <input
+            type="password"
+            placeholder="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="px-4 py-3 rounded-xl bg-white/10 border border-white/30 text-white placeholder-white/50 focus:outline-none focus:border-white"
+          />
+          {loginError && (
+            <p className="text-red-300 text-sm text-center">{loginError}</p>
+          )}
+          <button
+            type="submit"
+            disabled={loginLoading}
+            className={`px-8 py-3 rounded-xl font-bold transition-all ${loginLoading ? "bg-white/20 opacity-50 cursor-not-allowed" : "bg-[#8E2D47] hover:bg-[#6B1F3A]"}`}
+          >
+            {loginLoading ? "ログイン中..." : "ログイン"}
+          </button>
+        </form>
+        <p className="mt-8 text-white/50 text-xs uppercase tracking-tighter">
+          Admin Console for Precision Lab.
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="p-8 bg-[#A64C60]/40 text-white min-h-screen text-center flex flex-col items-center justify-center">
       <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitName}）</h1>
@@ -284,7 +351,14 @@ export default function AdminPage() {
         </p>
       </div>
 
-      <p className="mt-8 text-white/50 text-xs uppercase tracking-tighter">
+      <button
+        onClick={() => signOut(auth)}
+        className="mt-4 text-white/40 text-xs hover:text-white/70 transition-colors"
+      >
+        ログアウト
+      </button>
+
+      <p className="mt-4 text-white/50 text-xs uppercase tracking-tighter">
         Admin Console for Precision Lab.
       </p>
     </main>
