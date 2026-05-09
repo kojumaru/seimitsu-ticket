@@ -19,14 +19,6 @@ const EXHIBITS = [
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
   {
-    id: "chess",
-    name: "ロボットチェス",
-    location: "14号館 3階プロジェクト室",
-    timePerPerson: 5,
-    imageUrl: "/images/chess.png",
-    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
-  },
-  {
     id: "arm",
     name: "ワームホール\nロボットアーム",
     location: "14号館 3階プロジェクト室",
@@ -290,7 +282,7 @@ export default function GuidePage() {
       {/* カード一覧 */}
       <div className="flex-1 px-6 -mt-5 flex flex-col items-center justify-center">
         <div className="w-full max-w-7xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {EXHIBITS.map((exhibit) => (
               <ExhibitCard key={exhibit.id} exhibit={exhibit} />
             ))}
