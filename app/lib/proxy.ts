@@ -8,7 +8,6 @@ const EXHIBITS: Record<string, { name: string; location: string }> = {
     name: "スーパーロボットサッカー",
     location: "14号館 3階プロジェクト室",
   },
-  chess: { name: "ロボットチェス", location: "14号館 3階プロジェクト室" },
   arm: {
     name: "ワームホールロボットアーム",
     location: "14号館 3階プロジェクト室",
@@ -25,6 +24,7 @@ export async function sendLineNotification(
   const exhibit = EXHIBITS[exhibitId];
   const displayName = exhibit?.name || exhibitId.toUpperCase();
   const location = exhibit?.location || "企画場所";
+  const ticketPageUrl = `https://liff.line.me/2009242984-XYO590kr?exhibitId=${exhibitId}`;
 
   const res = await fetch("https://api.line.me/v2/bot/message/push", {
     method: "POST",
@@ -37,7 +37,7 @@ export async function sendLineNotification(
       messages: [
         {
           type: "text",
-          text: `【${displayName}】お待たせしました！${ticketNumber}番の方、${location}へお越しください！`,
+          text: `【${displayName}】\nお待たせしました！${ticketNumber}番の方、${location}へお越しください！\n\n注意：\nこのお呼び出しから一時間以内に企画場所へお越いただけない場合失効扱いとなる場合があります。\n\n整理券ページを再度開く:\n${ticketPageUrl}`,
         },
       ],
     }),
