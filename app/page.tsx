@@ -324,7 +324,7 @@ export default function TicketPage() {
                         <span className="mx-1">
                           {nowServing !== null && currentNumber !== null
                             ? currentInfo.timePerPerson *
-                              Math.max(0, nowServing - currentNumber)
+                              Math.max(0, (ticketNumber ?? nowServing + 1) - currentNumber)
                             : "取得中"}
                         </span>
                         <span className="text-lg">分</span>
