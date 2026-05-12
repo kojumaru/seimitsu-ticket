@@ -42,7 +42,7 @@ export const MESSAGES = {
   servingLabel: "現在案内中:",
   noTicketRequired: "現在整理券不要で案内中です",
   serving: "案内中",
-  scanQR: "カメラで読み取ってね！",
+  scanQR: "LINEのカメラで読み取ってね！",
   ticketDeadlineInfo: "※終了時刻30分前に整理券呼び出しは終了します",
   waitTimeLabel: "待ち時間目安:",
   minutes: "分",

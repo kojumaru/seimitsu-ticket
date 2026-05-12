@@ -271,6 +271,13 @@ export default function GuidePage() {
         </div>
       </div>
 
+      {/* LINEカメラ案内バナー */}
+      <div className="px-8 pb-4">
+        <div className="w-full max-w-7xl mx-auto bg-[#FFE08A] text-[#4F1128] rounded-xl px-5 py-3 text-center font-bold text-sm">
+          ⚠️ QRコードは必ず<span className="text-base font-black">LINEアプリのカメラ</span>で読み取ってください
+        </div>
+      </div>
+
       {/* カード一覧 */}
       <div className="flex-1 px-6 -mt-5 flex flex-col items-center justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-items-center">
