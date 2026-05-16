@@ -190,17 +190,21 @@ export default function TicketPage() {
       setIssueError("現在整理券の配布は終了しています。");
       return;
     }
+    const { userId } = profileRef.current;
     setIsIssuing(true);
     setIssueError(null);
     try {
-      const { userId } = profileRef.current;
       const ticketRef = doc(db, "tickets", exhibitId);
       let newNumber = 0;
       await runTransaction(db, async (transaction) => {
+        const myTicketRef = doc(db, "users", userId, "myTickets", exhibitId);
+        const myTicketSnap = await transaction.get(myTicketRef);
+        if (myTicketSnap.exists()) throw new Error("ALREADY_ISSUED");
+
         const snap = await transaction.get(ticketRef);
         newNumber = (snap.data()?.nowServing || 0) + 1;
         transaction.set(ticketRef, { nowServing: newNumber }, { merge: true });
-        transaction.set(doc(db, "users", userId, "myTickets", exhibitId), {
+        transaction.set(myTicketRef, {
           ticketNumber: newNumber,
           exhibitName: exhibitId,
           issuedAt: new Date(),
@@ -216,9 +220,15 @@ export default function TicketPage() {
       });
       setTicketNumber(newNumber);
 
-      // 整理券取得通知を送信
-      await notifyIssueTicket(userId, exhibitId);
+      // 整理券取得通知を送信（失敗しても整理券取得自体は成功扱い）
+      notifyIssueTicket(userId, exhibitId).catch((e) =>
+        console.error("notifyIssueTicket error:", e),
+      );
     } catch (e) {
+      if (e instanceof Error && e.message === "ALREADY_ISSUED") {
+        await checkMyTicket(userId);
+        return;
+      }
       console.error("issueTicket error:", e);
       setIssueError(e instanceof Error ? e.message : String(e));
     } finally {
