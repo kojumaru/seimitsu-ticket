@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db, auth } from "../lib/firebase";
-import { doc, onSnapshot, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, getDoc, serverTimestamp, writeBatch, deleteField } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { notifyUser } from "../actions/notify";
 
@@ -159,6 +159,7 @@ export default function AdminPage() {
   const [distributionEnabled, setDistributionEnabled] = useState(true);
   const [loading, setLoading] = useState(false); // 連打防止用
   const [toggleLoading, setToggleLoading] = useState(false); // トグル処理中フラグ
+  const [resetLoading, setResetLoading] = useState(false); // 全リセット処理中
   const [error, setError] = useState<string | null>(null);
 
   // 認証状態の監視
@@ -328,6 +329,33 @@ export default function AdminPage() {
     }
   };
 
+  const resetAll = async () => {
+    if (resetLoading) return;
+    const confirmed = window.confirm(
+      "全8企画の整理券データをリセットしますか？\n\n・全企画の番号が0に戻ります\n・配布状態が「配布中」に戻ります\n\nこの操作は取り消せません。",
+    );
+    if (!confirmed) return;
+    setResetLoading(true);
+    try {
+      const batch = writeBatch(db);
+      for (const exhibit of EXHIBITS) {
+        const ref = doc(db, "tickets", exhibit.id);
+        batch.set(ref, {
+          nowServing: 0,
+          currentNumber: 0,
+          distributionEnabled: true,
+          currentNumber_called_at: deleteField(),
+        }, { merge: true });
+      }
+      await batch.commit();
+    } catch (e) {
+      console.error("リセット中にエラーが発生しました:", e);
+      alert("リセットに失敗しました。コンソールを確認してください。");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const exhibitName = exhibitId ? (EXHIBIT_NAMES[exhibitId] || exhibitId) : "";
 
   if (!authChecked) {
@@ -400,7 +428,16 @@ export default function AdminPage() {
               <ExhibitAdminCard key={exhibit.id} exhibit={exhibit} />
             ))}
           </div>
-          <p className="mt-6 text-center text-white/30 text-xs uppercase tracking-tighter">
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={resetAll}
+              disabled={resetLoading}
+              className="px-6 py-2.5 rounded-xl text-sm font-bold border border-white/20 text-white/40 hover:border-red-400/60 hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              {resetLoading ? "リセット中..." : "全企画リセット"}
+            </button>
+          </div>
+          <p className="mt-4 text-center text-white/30 text-xs uppercase tracking-tighter">
             Admin Console for Precision Lab.
           </p>
         </div>
