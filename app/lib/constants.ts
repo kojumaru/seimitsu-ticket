@@ -43,6 +43,7 @@ export const MESSAGES = {
   noTicketRequired: "現在整理券不要で案内中です",
   serving: "案内中",
   scanQR: "LINEのカメラで読み取ってね！",
+  scanQRHint: "うまく読み取れない場合はLINEを再起動してお試しください",
   ticketDeadlineInfo: "※終了時刻30分前に整理券呼び出しは終了します",
   waitTimeLabel: "待ち時間目安:",
   minutes: "分",

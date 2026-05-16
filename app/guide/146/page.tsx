@@ -226,6 +226,9 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
             <p className="text-center text-xs font-bold" style={{ color: COLORS.darkRed }}>
               {MESSAGES.scanQR}
             </p>
+            <p className="text-center text-xs" style={{ color: COLORS.darkRed }}>
+              {MESSAGES.scanQRHint}
+            </p>
           </>
         )}
       </div>
@@ -275,8 +278,6 @@ export default function GuidePage() {
       <div className="px-8 pb-4">
         <div className="w-full max-w-7xl mx-auto bg-[#FFE08A] text-[#4F1128] rounded-xl px-5 py-3 text-center font-bold text-sm">
           ⚠️ QRコードは必ず<span className="text-base font-black">LINEアプリのカメラ</span>で読み取ってください
-          <br />
-          <span className="text-xs font-medium">うまく読み取れない場合はLINEを再起動してお試しください</span>
         </div>
       </div>
 
