@@ -41,7 +41,6 @@ URLに `?exhibitId=xxx` をつけてアクセスする。
 | 企画名 | URL |
 |---|---|
 | スーパーロボットサッカー | https://seimitsu-ticket.vercel.app/admin?exhibitId=soccer |
-| ロボットチェス | https://seimitsu-ticket.vercel.app/admin?exhibitId=chess |
 | ワームホールロボットアーム | https://seimitsu-ticket.vercel.app/admin?exhibitId=arm |
 | せいみつスイッチ | https://seimitsu-ticket.vercel.app/admin?exhibitId=switch |
 | せいみつPONG! | https://seimitsu-ticket.vercel.app/admin?exhibitId=pong |
@@ -50,7 +49,7 @@ URLに `?exhibitId=xxx` をつけてアクセスする。
 | 現実拡張空間 | https://seimitsu-ticket.vercel.app/admin?exhibitId=room |
 | ジャングル・スコープ | https://seimitsu-ticket.vercel.app/admin?exhibitId=truck |
 
-Basic認証あり。ユーザー名 `admin`、パスワードはVercel環境変数 `ADMIN_PASSWORD` で管理（Vercel転送時に引き継がれる。変更する場合は Vercel Dashboard → Settings → Environment Variables）。
+メールアドレスとパスワードでログインする。アカウントはFirebase Authentication → Users で管理。
 
 「次の番号を呼ぶ」ボタンを押すだけで、次の来場者にLINE通知が送られる。「整理券配布中 / 整理券なし」トグルで配布の開始・停止も可能。
 
@@ -96,7 +95,7 @@ LINE Official Accountをフォローした時点でウェルカムメッセー�
 
 ### 3. 管理画面で呼び出し
 
-管理画面（`/admin?exhibitId=xxx`）はBasic認証で保護。ユーザー名 `admin`、パスワードは `.env.local` の `ADMIN_PASSWORD`。
+管理画面（`/admin?exhibitId=xxx`）はFirebaseのメール/パスワード認証で保護。
 
 <img src="docs/screenshots/07-admin-switch.png" width="250" alt="管理画面">
 
@@ -206,7 +205,6 @@ developers.line.biz → プロバイダー → チャンネル → 「Members」
 | exhibitId | 企画名                     |
 | --------- | -------------------------- |
 | soccer    | スーパーロボットサッカー   |
-| chess     | ロボットチェス             |
 | arm       | ワームホールロボットアーム |
 | switch    | せいみつスイッチ           |
 | pong      | せいみつPONG!              |
@@ -241,7 +239,6 @@ cp .env.example .env.local
 
 - `NEXT_PUBLIC_FIREBASE_*` — Firebase設定（クライアント側）
 - `LINE_CHANNEL_ACCESS_TOKEN` — LINE Official Accountのトークン
-- `ADMIN_PASSWORD` — 管理者画面のパスワード
 
 ### 3. 動作確認
 
@@ -323,11 +320,11 @@ app/
 ├── admin/page.tsx        # 運営向け：呼び出し管理画面
 ├── actions/
 │   └── notify.ts         # サーバーアクション（LINE通知）
+├── api/
+│   └── tickets/route.ts  # チケット情報取得API
 ├── lib/
 │   ├── firebase.ts       # Firebase接続設定
 │   └── proxy.ts          # LINE API呼び出し処理
-
-middleware.ts             # /admin へのBasic認証
 ```
 
 ---
