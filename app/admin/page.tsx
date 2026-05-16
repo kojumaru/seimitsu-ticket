@@ -136,9 +136,7 @@ export default function AdminPage() {
       const activeSnap = await getDoc(activeRef);
 
       if (!activeSnap.exists()) {
-        console.log(
-          "対象の整理券を発行しているユーザーがいません。通知をスキップします。",
-        );
+        showError(`${newCurrentNumber}番の整理券データが見つかりません。通知をスキップしました。`);
         setLoading(false);
         return;
       }
@@ -189,35 +187,27 @@ export default function AdminPage() {
           `${exhibitId} の配布モードを OFF に設定し、currentNumber を ${nowServing} に更新しました`,
         );
 
-        // oldCurrentNumber + 1 から nowServing までの人に通知を送る
-        for (let ticketNum = oldCurrentNumber + 1; ticketNum <= nowServing; ticketNum++) {
-          try {
+        // oldCurrentNumber + 1 から nowServing までの人に並列通知
+        const ticketNums = Array.from(
+          { length: nowServing - oldCurrentNumber },
+          (_, i) => oldCurrentNumber + 1 + i,
+        );
+        await Promise.allSettled(
+          ticketNums.map(async (ticketNum) => {
             const activeRef = doc(
               db,
               "active_tickets",
               `${exhibitId}_${ticketNum}`,
             );
             const activeSnap = await getDoc(activeRef);
-
-            if (activeSnap.exists()) {
-              const userId = activeSnap.data().userId;
-              const result = await notifyUser(userId, ticketNum, exhibitId);
-              if (result.ok) {
-                console.log(`${ticketNum}番の人に通知を送信しました`);
-              } else {
-                console.error(
-                  `${ticketNum}番の人への通知に失敗しました:`,
-                  result.error,
-                );
-              }
+            if (!activeSnap.exists()) return;
+            const userId = activeSnap.data().userId;
+            const result = await notifyUser(userId, ticketNum, exhibitId);
+            if (!result.ok) {
+              console.error(`${ticketNum}番への通知失敗:`, result.error);
             }
-          } catch (notifyError) {
-            console.error(
-              `${ticketNum}番への通知処理中にエラー:`,
-              notifyError,
-            );
-          }
-        }
+          }),
+        );
       }
     } catch (error) {
       console.error("配布モード更新中にエラーが発生しました:", error);

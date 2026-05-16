@@ -96,6 +96,7 @@ export default function TicketPage() {
   const [ticketNumber, setTicketNumber] = useState<number | null>(null);
   const [nowServing, setNowServing] = useState<number | null>(null);
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
+  const [distributionEnabled, setDistributionEnabled] = useState<boolean>(true);
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
@@ -131,6 +132,7 @@ export default function TicketPage() {
         if (snap.exists()) {
           setNowServing(snap.data().nowServing ?? null);
           setCurrentNumber(snap.data().currentNumber ?? null);
+          setDistributionEnabled(snap.data().distributionEnabled ?? true);
           const calledAtData = snap.data().currentNumber_called_at;
           if (calledAtData && !calledAt) {
             setCalledAt(
@@ -154,6 +156,7 @@ export default function TicketPage() {
           if (snap.exists()) {
             setNowServing(snap.data().nowServing ?? null);
             setCurrentNumber(snap.data().currentNumber ?? null);
+            setDistributionEnabled(snap.data().distributionEnabled ?? true);
             // 呼び出し時刻を取得
             const calledAtData = snap.data().currentNumber_called_at;
             if (calledAtData && !calledAt) {
@@ -190,6 +193,11 @@ export default function TicketPage() {
 
   const issueTicket = async () => {
     if (!profileRef.current) return;
+    if (ticketNumber !== null) return;
+    if (!distributionEnabled) {
+      setIssueError("現在整理券の配布は終了しています。");
+      return;
+    }
     setIsIssuing(true);
     setIssueError(null);
     try {
@@ -439,11 +447,11 @@ export default function TicketPage() {
                   )}
                   <button
                     onClick={issueTicket}
-                    disabled={isIssuing || !ready || isLoadingData}
+                    disabled={isIssuing || !ready || isLoadingData || !distributionEnabled}
                     className="w-full bg-white text-[#6B1F3A] py-4 rounded text-lg font-bold transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ letterSpacing: "0.04em" }}
                   >
-                    {!ready || isLoadingData ? "読み込み中..." : isIssuing ? "発行中..." : "整理券を受け取る"}
+                    {!ready || isLoadingData ? "読み込み中..." : isIssuing ? "発行中..." : !distributionEnabled ? "配布終了" : "整理券を受け取る"}
                   </button>
                 </motion.div>
               </AnimatePresence>
