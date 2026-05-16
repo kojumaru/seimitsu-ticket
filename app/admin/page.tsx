@@ -6,7 +6,6 @@ import { doc, onSnapshot, setDoc, getDoc, serverTimestamp } from "firebase/fires
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { notifyUser } from "../actions/notify";
 
-// 企画IDから名前へのマッピング
 const EXHIBIT_NAMES: Record<string, string> = {
   pong: "せいみつPONG!",
   shooting: "お絵描きシューティング",
@@ -18,12 +17,135 @@ const EXHIBIT_NAMES: Record<string, string> = {
   switch: "せいみつスイッチ",
 };
 
+const EXHIBITS = [
+  { id: "switch", name: "せいみつスイッチ", location: "3階プロジェクト室" },
+  { id: "soccer", name: "スーパーロボットサッカー", location: "3階プロジェクト室" },
+  { id: "arm", name: "ワームホールロボットアーム", location: "3階プロジェクト室" },
+  { id: "pong", name: "せいみつPONG!", location: "1階142教室" },
+  { id: "shooting", name: "お絵描きシューティング", location: "1階142教室" },
+  { id: "tank", name: "ARタンク", location: "1階142教室" },
+  { id: "room", name: "現実拡張空間", location: "3階146教室" },
+  { id: "truck", name: "ジャングル・スコープ", location: "3階146教室" },
+];
+
+interface TicketState {
+  nowServing: number;
+  currentNumber: number;
+  distributionEnabled: boolean;
+}
+
+function ExhibitAdminCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
+  const [state, setState] = useState<TicketState>({
+    nowServing: 0,
+    currentNumber: 0,
+    distributionEnabled: true,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const ref = doc(db, "tickets", exhibit.id);
+    const unsubscribe = onSnapshot(ref, (snap) => {
+      if (snap.exists()) {
+        setState({
+          nowServing: snap.data().nowServing || 0,
+          currentNumber: snap.data().currentNumber || 0,
+          distributionEnabled: snap.data().distributionEnabled ?? true,
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [exhibit.id]);
+
+  const showCardError = (msg: string) => {
+    setError(msg);
+    setTimeout(() => setError(null), 3000);
+  };
+
+  const nextNumber = async () => {
+    if (loading) return;
+    const newCurrentNumber = state.currentNumber + 1;
+    if (newCurrentNumber > state.nowServing) {
+      showCardError("整理券が発行されていません");
+      return;
+    }
+    setLoading(true);
+    try {
+      const ticketRef = doc(db, "tickets", exhibit.id);
+      await setDoc(
+        ticketRef,
+        { currentNumber: newCurrentNumber, currentNumber_called_at: serverTimestamp() },
+        { merge: true },
+      );
+      const activeRef = doc(db, "active_tickets", `${exhibit.id}_${newCurrentNumber}`);
+      const activeSnap = await getDoc(activeRef);
+      if (!activeSnap.exists()) {
+        showCardError(`${newCurrentNumber}番のデータが見つかりません。口頭でお知らせください。`);
+        return;
+      }
+      const result = await notifyUser(activeSnap.data().userId, newCurrentNumber, exhibit.id);
+      if (!result.ok) {
+        showCardError(`${newCurrentNumber}番への通知失敗。口頭でお知らせください。`);
+      }
+    } catch (e) {
+      console.error(e);
+      showCardError("エラーが発生しました");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const waitCount = Math.max(0, state.nowServing - state.currentNumber);
+  const canCallNext = state.currentNumber < state.nowServing;
+
+  return (
+    <div className="bg-[#6B1F3A] rounded-2xl p-4 text-white flex flex-col gap-3">
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-0.5">
+          <h2 className="font-black text-sm leading-tight">{exhibit.name}</h2>
+          <span
+            className={`text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+              state.distributionEnabled
+                ? "bg-green-500/30 text-green-300"
+                : "bg-white/20 text-white/50"
+            }`}
+          >
+            {state.distributionEnabled ? "配布中" : "配布終了"}
+          </span>
+        </div>
+        <p className="text-white/50 text-xs">{exhibit.location}</p>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5 text-center">
+        <div className="bg-[#4F1128] rounded-lg py-2 px-1">
+          <div className="text-2xl font-bold leading-none">{state.currentNumber}</div>
+          <div className="text-xs text-white/50 mt-1">呼び出し済み</div>
+        </div>
+        <div className="bg-[#4F1128] rounded-lg py-2 px-1">
+          <div className="text-2xl font-bold leading-none">{state.nowServing}</div>
+          <div className="text-xs text-white/50 mt-1">発行済み</div>
+        </div>
+        <div className="bg-[#4F1128] rounded-lg py-2 px-1">
+          <div className="text-2xl font-bold leading-none">{waitCount}</div>
+          <div className="text-xs text-white/50 mt-1">待ち人数</div>
+        </div>
+      </div>
+      {error && <p className="text-[#FFE08A] text-xs leading-snug">{error}</p>}
+      <button
+        onClick={nextNumber}
+        disabled={loading || !canCallNext}
+        className="w-full bg-[#8E2D47] hover:bg-[#A64C60] disabled:opacity-40 disabled:cursor-not-allowed py-2.5 rounded-xl font-black text-sm transition-colors active:scale-95"
+      >
+        {loading ? "更新中..." : "次の番号を呼ぶ"}
+      </button>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const exhibitId =
     typeof window !== "undefined"
-      ? (new URLSearchParams(window.location.search).get("exhibitId") ??
-        "switch")
-      : "switch";
+      ? new URLSearchParams(window.location.search).get("exhibitId")
+      : null;
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -53,7 +175,7 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
-  // Firestoreリスナー（管理者認証済みのみ）
+  // Firestoreリスナー（個別管理画面のみ）
   useEffect(() => {
     if (!isAdmin || !exhibitId) return;
 
@@ -94,7 +216,7 @@ export default function AdminPage() {
   };
 
   const nextNumber = async () => {
-    if (loading) return; // 処理中はガード
+    if (loading || !exhibitId) return;
     setError(null);
 
     const newCurrentNumber = currentNumber + 1;
@@ -152,7 +274,7 @@ export default function AdminPage() {
   };
 
   const toggleDistribution = async (enabled: boolean) => {
-    if (toggleLoading) return;
+    if (toggleLoading || !exhibitId) return;
     setToggleLoading(true);
 
     try {
@@ -206,7 +328,7 @@ export default function AdminPage() {
     }
   };
 
-  const exhibitName = EXHIBIT_NAMES[exhibitId] || exhibitId;
+  const exhibitName = exhibitId ? (EXHIBIT_NAMES[exhibitId] || exhibitId) : "";
 
   if (!authChecked) {
     return (
@@ -255,6 +377,38 @@ export default function AdminPage() {
     );
   }
 
+  // exhibitId なし → 全企画ダッシュボード
+  if (!exhibitId) {
+    return (
+      <main
+        className="min-h-screen bg-[#2E0A1A] text-white p-4"
+        style={{ fontFamily: '"Noto Sans JP", system-ui, sans-serif' }}
+      >
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');`}</style>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-black">運営ダッシュボード</h1>
+            <button
+              onClick={() => signOut(auth)}
+              className="text-white/40 text-xs hover:text-white/70 transition-colors"
+            >
+              ログアウト
+            </button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {EXHIBITS.map((exhibit) => (
+              <ExhibitAdminCard key={exhibit.id} exhibit={exhibit} />
+            ))}
+          </div>
+          <p className="mt-6 text-center text-white/30 text-xs uppercase tracking-tighter">
+            Admin Console for Precision Lab.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  // exhibitId あり → 個別管理画面
   return (
     <main className="p-8 bg-[#A64C60]/40 text-white min-h-screen text-center flex flex-col items-center justify-center">
       <h1 className="text-2xl font-bold mb-6">運営ページ（{exhibitName}）</h1>

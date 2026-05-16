@@ -51,7 +51,7 @@
 
 ### 運営ダッシュボード（全8企画を1画面で管理）
 
-https://seimitsu-ticket.vercel.app/guide
+https://seimitsu-ticket.vercel.app/admin
 
 メールアドレスとパスワードでログインすると、全8企画のリアルタイム状況と「次の番号を呼ぶ」ボタンが1画面に表示される。複数企画を兼任するスタッフや、全体を俯瞰したい場合に使う。
 
@@ -351,11 +351,11 @@ Vercel の自動デプロイが有効になっているため、プッシュと�
 app/
 ├── page.tsx                  # 来場者向け：整理券取得・待ち状況画面
 ├── guide/
-│   ├── page.tsx              # 運営ダッシュボード：全8企画を1画面で管理（要管理者ログイン）
+│   ├── page.tsx              # 案内用：部屋別ガイド一覧（project / 142 / 146 へのリンク）
 │   ├── project/page.tsx      # 案内用：プロジェクト室のQRコード・待ち時間一覧
 │   ├── 142/page.tsx          # 案内用：142教室のQRコード・待ち時間一覧
 │   └── 146/page.tsx          # 案内用：146教室のQRコード・待ち時間一覧
-├── admin/page.tsx            # 個別管理者画面：企画ごとの呼び出し・配布停止操作
+├── admin/page.tsx            # 運営ダッシュボード（?exhibitId なし）＋ 個別管理画面（?exhibitId=xxx）
 ├── actions/
 │   └── notify.ts             # サーバーアクション（LINE通知）
 ├── api/
