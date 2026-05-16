@@ -237,6 +237,24 @@ function ExhibitCard({ exhibit }: { exhibit: (typeof EXHIBITS)[0] }) {
 }
 
 export default function GuidePage() {
+  useEffect(() => {
+    let wakeLock: WakeLockSentinel | null = null;
+    const acquire = async () => {
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+      } catch {}
+    };
+    acquire();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") acquire();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      wakeLock?.release();
+    };
+  }, []);
+
   return (
     <main
       className="min-h-screen flex flex-col"
