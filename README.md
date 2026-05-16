@@ -14,19 +14,32 @@
 
 - **整理券の発行** — LINEログイン後、ボタン一つで整理券を取得
 - **リアルタイム待ち状況** — 現在の案内番号・待ち人数・待ち時間目安をリアルタイムで表示
-- **LINE通知** — 順番が来たら来場者のLINEに自動でメッセージを送信
+- **LINE通知** — 順番が来たら来場者のLINEに自動でメッセージを送信（取得確認・呼び出しの2段階）
 - **案内画面** — 各企画のQRコードと待ち時間を一覧表示（スタッフが掲示用に使用）
-- **管理者画面** — パスワード認証付き。ボタン一つで次の番号を呼び出し
+- **運営ダッシュボード** — 全8企画を1画面で管理。管理者認証付き
+- **個別管理者画面** — 企画ごとの詳細な管理（配布開始・停止も含む）
 
 ---
 
 ## 運営時の使い方
 
-システムを使うだけなら、以下の2つのURLを開くだけでよい。
+### 当日運用前チェックリスト
+
+当日システムを起動する前に必ず確認する。
+
+- [ ] Firebase Console → Firestore → `tickets` コレクション内に全8企画のドキュメントが存在するか確認（存在しない場合は手動作成）
+  - フィールド：`nowServing: 0`、`currentNumber: 0`、`distributionEnabled: true`
+- [ ] LINE Channel Access Token が Vercel の環境変数に設定されているか確認
+- [ ] 管理者画面へのログインができるか事前テスト
+- [ ] 各案内画面のQRコードをLINEアプリカメラで読み取れるかテスト
+
+> **注意：** Firestoreのドキュメントが存在しない状態だと、来場者画面・管理画面ともに正常に動作しない。
+
+---
 
 ### 案内画面（モニター掲示用）
 
-企画場所のモニターで以下のURLを開く。来場者がQRをスキャンして整理券を取得できる。
+企画場所のモニターで以下のURLを開く。来場者がQRをスキャンして整理券を取得できる。QRコードは必ずLINEアプリのカメラで読み取ること。
 
 | 企画場所       | URL                                              |
 | -------------- | ------------------------------------------------ |
@@ -34,9 +47,28 @@
 | 142号室        | https://seimitsu-ticket.vercel.app/guide/142     |
 | 146号室        | https://seimitsu-ticket.vercel.app/guide/146     |
 
-### 管理者画面（呼び出し操作用）
+---
 
-URLに `?exhibitId=xxx` をつけてアクセスする。
+### 運営ダッシュボード（全8企画を1画面で管理）
+
+https://seimitsu-ticket.vercel.app/guide
+
+メールアドレスとパスワードでログインすると、全8企画のリアルタイム状況と「次の番号を呼ぶ」ボタンが1画面に表示される。複数企画を兼任するスタッフや、全体を俯瞰したい場合に使う。
+
+| 表示項目     | 内容                               |
+| ------------ | ---------------------------------- |
+| 呼び出し済み | 現在呼び出した最大番号             |
+| 発行済み     | 発行された整理券の最大番号         |
+| 待ち人数     | 発行済み − 呼び出し済みの差        |
+| 配布状態     | 「配布中」または「配布終了」バッジ |
+
+LINE通知が失敗した場合はカード上にエラーメッセージが表示される（3秒後に自動消去）。口頭での案内に切り替えること。
+
+---
+
+### 個別管理者画面（企画ごとの詳細操作）
+
+URLに `?exhibitId=xxx` をつけてアクセスする。配布の開始・停止トグルが必要な場合はこちらを使う。
 
 | 企画名 | URL |
 |---|---|
@@ -49,17 +81,19 @@ URLに `?exhibitId=xxx` をつけてアクセスする。
 | 現実拡張空間 | https://seimitsu-ticket.vercel.app/admin?exhibitId=room |
 | ジャングル・スコープ | https://seimitsu-ticket.vercel.app/admin?exhibitId=truck |
 
-メールアドレスとパスワードでログインする。アカウントはFirebase Authentication → Users で管理。
+メールアドレスとパスワードでログインする。アカウントは Firebase Console → Authentication → Users で管理。
 
-「次の番号を呼ぶ」ボタンを押すだけで、次の来場者にLINE通知が送られる。「整理券配布中 / 整理券なし」トグルで配布の開始・停止も可能。
+「次の番号を呼ぶ」ボタンを押すだけで、次の来場者にLINE通知が送られる。LINE通知が失敗した場合は画面上にエラーメッセージが表示されるため、口頭での案内に切り替えること。
+
+「整理券配布中 / 整理券なし」トグルで配布の開始・停止も可能。**OFFに切り替える際は確認ダイアログが表示される。承認すると待機中の全員に一斉通知が飛び、取り消し不可のため慎重に操作すること。**
 
 ---
 
 ## システムの仕組み
 
-### 1. モニター表示（guide画面）
+### 1. モニター表示（guide/project・guide/142・guide/146）
 
-企画場所に設置したモニターで guide 画面を開く。各企画カードに LIFF URL（`?exhibitId=xxx`）が埋め込まれたQRコードが表示される。Firestoreの `tickets/{exhibitId}` を `onSnapshot` でリアルタイム監視しており、待ち人数・待ち時間目安・案内中番号が自動更新される。
+企画場所に設置したモニターで各 guide サブページを開く。各企画カードに LIFF URL（`?exhibitId=xxx`）が埋め込まれたQRコードが表示される。Firestoreの `tickets/{exhibitId}` を `onSnapshot` でリアルタイム監視しており、待ち人数・待ち時間目安・案内中番号が自動更新される。
 
 <img src="docs/screenshots/09-guide-project.png" width="500" alt="モニター掲示画面（Project企画）">
 <img src="docs/screenshots/10-guide-142.png" width="500" alt="モニター掲示画面（142号室）">
@@ -81,7 +115,7 @@ QRをスキャンするとLINEアプリ内でLIFFページが開き、LINEログ
 - `users/{userId}/myTickets/{exhibitId}` に整理券番号・発行時刻を記録
 - `active_tickets/{exhibitId}_{ticketNumber}` に userId を登録（呼び出し時の通知先として使用）
 
-発行完了後、サーバーアクション経由でLINEに取得確認メッセージを送信。
+発行完了後、サーバーアクション経由でLINEに取得確認メッセージを送信。送信に失敗した場合は整理券ページ上に警告メッセージが表示される。
 
 <img src="docs/screenshots/02-ticket-obtained.jpg" width="250" alt="整理券取得済み">
 
@@ -107,7 +141,7 @@ LINE Official Accountをフォローした時点でウェルカムメッセー�
 
 `currentNumber > nowServing` の場合はエラーになり通知は送られない。
 
-「整理券配布中 / 整理券なし」トグルで `distributionEnabled` を切り替えることもできる。
+「整理券配布中 / 整理券なし」トグルで `distributionEnabled` を切り替えることもできる。OFFへの切り替えは確認ダイアログが表示され、承認後に実行される。
 
 - **OFF にした場合**：`currentNumber` を `nowServing` と同値に更新し、未呼び出し全員に一括LINE通知を送信。guide画面のQRコードが非表示になり新規発行が止まる。
 - **ON に戻した場合**：`distributionEnabled: true` を書き込むだけ。QRコードが再表示される。
@@ -315,16 +349,23 @@ Vercel の自動デプロイが有効になっているため、プッシュと�
 
 ```
 app/
-├── page.tsx              # 来場者向け：整理券取得・待ち状況画面
-├── guide/page.tsx        # 案内用：QRコードと待ち時間の一覧
-├── admin/page.tsx        # 運営向け：呼び出し管理画面
+├── page.tsx                  # 来場者向け：整理券取得・待ち状況画面
+├── guide/
+│   ├── page.tsx              # 運営ダッシュボード：全8企画を1画面で管理（要管理者ログイン）
+│   ├── project/page.tsx      # 案内用：プロジェクト室のQRコード・待ち時間一覧
+│   ├── 142/page.tsx          # 案内用：142教室のQRコード・待ち時間一覧
+│   └── 146/page.tsx          # 案内用：146教室のQRコード・待ち時間一覧
+├── admin/page.tsx            # 個別管理者画面：企画ごとの呼び出し・配布停止操作
 ├── actions/
-│   └── notify.ts         # サーバーアクション（LINE通知）
+│   └── notify.ts             # サーバーアクション（LINE通知）
 ├── api/
-│   └── tickets/route.ts  # チケット情報取得API
+│   └── tickets/route.ts      # チケット情報取得API
 ├── lib/
-│   ├── firebase.ts       # Firebase接続設定
-│   └── proxy.ts          # LINE API呼び出し処理
+│   ├── firebase.ts           # Firebase接続設定
+│   ├── proxy.ts              # LINE API呼び出し処理
+│   └── constants.ts          # デザイントークン・設定値
+└── components/
+    └── icons.tsx             # 共通アイコンコンポーネント
 ```
 
 ---

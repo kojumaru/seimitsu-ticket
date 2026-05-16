@@ -93,6 +93,7 @@ export default function TicketPage() {
   const [ready, setReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
+  const [notifyWarning, setNotifyWarning] = useState<string | null>(null);
   const [calledAt, setCalledAt] = useState<Date | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const profileRef = useRef<{ userId: string } | null>(null);
@@ -116,7 +117,14 @@ export default function TicketPage() {
     };
 
     const initializeData = async () => {
-      await initLiff();
+      try {
+        await initLiff();
+      } catch (error) {
+        console.error("LIFF初期化エラー:", error);
+        setIssueError("読み込みに失敗しました。LINEアプリで開き直してください。");
+        setIsLoadingData(false);
+        return;
+      }
 
       // 認証後、まず一度getDocで初期データを取得
       const ticketRef = doc(db, "tickets", exhibitId);
@@ -221,9 +229,10 @@ export default function TicketPage() {
       setTicketNumber(newNumber);
 
       // 整理券取得通知を送信（失敗しても整理券取得自体は成功扱い）
-      notifyIssueTicket(userId, exhibitId).catch((e) =>
-        console.error("notifyIssueTicket error:", e),
-      );
+      notifyIssueTicket(userId, exhibitId).catch((e) => {
+        console.error("notifyIssueTicket error:", e);
+        setNotifyWarning("LINE通知の送信に失敗しました。順番になったら運営スタッフにお知らせください。");
+      });
     } catch (e) {
       if (e instanceof Error && e.message === "ALREADY_ISSUED") {
         await checkMyTicket(userId);
@@ -425,6 +434,11 @@ export default function TicketPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-3"
                 >
+                  {notifyWarning && (
+                    <p className="text-xs text-[#FFE08A] break-words">
+                      {notifyWarning}
+                    </p>
+                  )}
                   <p className="text-xs font-medium leading-relaxed text-white/75">
                     順番になりましたら公式LINEから通知いたします！
                     <br />

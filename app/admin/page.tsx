@@ -141,6 +141,7 @@ export default function AdminPage() {
 
       if (!result.ok) {
         console.error("LINE通知に失敗しました:", result.error);
+        showError(`${newCurrentNumber}番へのLINE通知送信に失敗しました。口頭でお知らせください。`);
       }
     } catch (error) {
       console.error("Firestoreの更新中にエラーが発生しました:", error);
@@ -302,7 +303,12 @@ export default function AdminPage() {
             整理券配布中
           </span>
           <button
-            onClick={() => toggleDistribution(!distributionEnabled)}
+            onClick={() => {
+              if (distributionEnabled) {
+                if (!window.confirm("整理券の配布を終了しますか？\n待機中の全員にLINE通知が送信されます。この操作は取り消せません。")) return;
+              }
+              toggleDistribution(!distributionEnabled);
+            }}
             disabled={toggleLoading}
             className={`relative w-24 h-12 rounded-full transition-all shadow-lg ${
               distributionEnabled
