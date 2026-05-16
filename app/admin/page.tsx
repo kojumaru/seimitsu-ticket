@@ -14,7 +14,6 @@ const EXHIBIT_NAMES: Record<string, string> = {
   room: "現実拡張空間",
   truck: "ジャングル・スコープ",
   soccer: "スーパーロボットサッカー",
-  chess: "ロボットチェス",
   arm: "ワームホールロボットアーム",
   switch: "せいみつスイッチ",
   "kikaku-a": "企画A",
@@ -114,10 +113,6 @@ export default function AdminPage() {
     try {
       const ticketRef = doc(db, "tickets", exhibitId);
 
-      console.log(
-        `${exhibitId} の現在案内中を ${newCurrentNumber} に更新します...`,
-      );
-
       // currentNumber を更新（呼び出し時刻も記録）
       await setDoc(
         ticketRef,
@@ -145,9 +140,7 @@ export default function AdminPage() {
 
       const result = await notifyUser(userId, newCurrentNumber, exhibitId);
 
-      if (result.ok) {
-        console.log("LINE通知に成功しました！");
-      } else {
+      if (!result.ok) {
         console.error("LINE通知に失敗しました:", result.error);
       }
     } catch (error) {
@@ -168,7 +161,7 @@ export default function AdminPage() {
       if (enabled) {
         // ON にするだけ
         await setDoc(ticketRef, { distributionEnabled: true }, { merge: true });
-        console.log(`${exhibitId} の配布モードを ON に設定しました`);
+;
       } else {
         // OFF にして全配布済みを呼び出し済みに
         // 現在の currentNumber から nowServing までの全員に通知を送る
@@ -183,10 +176,6 @@ export default function AdminPage() {
           },
           { merge: true },
         );
-        console.log(
-          `${exhibitId} の配布モードを OFF に設定し、currentNumber を ${nowServing} に更新しました`,
-        );
-
         // oldCurrentNumber + 1 から nowServing までの人に並列通知
         const ticketNums = Array.from(
           { length: nowServing - oldCurrentNumber },

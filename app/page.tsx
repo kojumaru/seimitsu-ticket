@@ -33,13 +33,6 @@ const EXHIBIT_INFO: Record<
     imageUrl: "/images/soccer.png",
     schedules: ["16日（土）~16:00", "17日（日）~18:00"],
   },
-  chess: {
-    name: "ロボットチェス",
-    location: "14号館 3階プロジェクト室",
-    timePerPerson: 5,
-    imageUrl: "/images/chess.png",
-    schedules: ["16日（土）~16:00", "17日（日）~18:00"],
-  },
   arm: {
     name: "ワームホール\nロボットアーム",
     location: "14号館 3階プロジェクト室",
@@ -152,7 +145,6 @@ export default function TicketPage() {
       const unsubscribe = onSnapshot(
         ticketRef,
         (snap) => {
-          console.log("onSnapshot update:", snap.data());
           if (snap.exists()) {
             setNowServing(snap.data().nowServing ?? null);
             setCurrentNumber(snap.data().currentNumber ?? null);

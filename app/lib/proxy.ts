@@ -13,7 +13,6 @@ const EXHIBITS: Record<string, { name: string; location: string }> = {
     location: "14号館 3階プロジェクト室",
   },
   switch: { name: "せいみつスイッチ", location: "14号館 3階プロジェクト室" },
-  chess: { name: "ロボットチェス", location: "14号館 3階プロジェクト室" },
 };
 
 export async function sendLineNotification(
