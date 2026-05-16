@@ -16,15 +16,14 @@ const EXHIBIT_NAMES: Record<string, string> = {
   soccer: "スーパーロボットサッカー",
   arm: "ワームホールロボットアーム",
   switch: "せいみつスイッチ",
-  "kikaku-a": "企画A",
 };
 
 export default function AdminPage() {
   const exhibitId =
     typeof window !== "undefined"
       ? (new URLSearchParams(window.location.search).get("exhibitId") ??
-        "kikaku-a")
-      : "kikaku-a";
+        "switch")
+      : "switch";
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
