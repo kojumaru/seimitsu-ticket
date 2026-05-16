@@ -93,7 +93,7 @@ URLに `?exhibitId=xxx` をつけてアクセスする。配布の開始・停�
 
 ### 1. モニター表示（guide/project・guide/142・guide/146）
 
-企画場所に設置したモニターで各 guide サブページを開く。各企画カードに LIFF URL（`?exhibitId=xxx`）が埋め込まれたQRコードが表示される。Firestoreの `tickets/{exhibitId}` を `onSnapshot` でリアルタイム監視しており、待ち人数・待ち時間目安・案内中番号が自動更新される。
+企画場所に設置したモニターで各 guide サブページを開く。各企画カードに LIFF URL（`?exhibitId=xxx`）が埋め込まれたQRコードが表示される。ページ表示時に `/api/tickets` で初期データを即座に取得し、認証完了後は Firestoreの `tickets/{exhibitId}` を `onSnapshot` でリアルタイム監視することで、待ち人数・待ち時間目安・案内中番号が自動更新される。
 
 <img src="docs/screenshots/09-guide-project.png" width="500" alt="モニター掲示画面（Project企画）">
 <img src="docs/screenshots/10-guide-142.png" width="500" alt="モニター掲示画面（142号室）">
@@ -105,7 +105,9 @@ URLに `?exhibitId=xxx` をつけてアクセスする。配布の開始・停�
 
 ### 2. 来場者がQRをスキャン → 整理券取得
 
-QRをスキャンするとLINEアプリ内でLIFFページが開き、LINEログインが走る。同時にFirebase匿名認証（`signInAnonymously`）も実行され、Firestoreへのアクセス権を取得する。
+QRをスキャンするとLINEアプリ内でLIFFページが開く。ページ表示と同時に `/api/tickets` で現在の待ち状況を即座に取得・表示する。
+
+並行してLIFF認証が走る。2回目以降の訪問では LINE の userId を `localStorage` にキャッシュしているため、`liff.getProfile()` をスキップして整理券番号をすばやく表示できる。Firebase匿名認証（`signInAnonymously`）は LIFF 初期化と並列で実行され、Firestoreへのアクセス権を取得する。
 
 <img src="docs/screenshots/01-ticket-before.jpg" width="250" alt="整理券取得ページ">
 
@@ -297,16 +299,18 @@ npm run dev
 ```
 tickets/
 ├── {exhibitId}/
-│   ├── currentNumber: Number (呼び出し済みの番号)
-│   ├── nowServing: Number (発行済みの最大番号)
-│   └── distributionEnabled: Boolean
+│   ├── currentNumber: Number          (呼び出し済みの番号)
+│   ├── nowServing: Number             (発行済みの最大番号)
+│   ├── distributionEnabled: Boolean
+│   └── currentNumber_called_at: Timestamp (最後に呼び出した時刻)
 
 users/
 ├── {userId}/
 │   └── myTickets/
 │       └── {exhibitId}/
 │           ├── ticketNumber: Number
-│           └── timestamp: Timestamp
+│           ├── exhibitName: String
+│           └── issuedAt: Timestamp
 
 active_tickets/
 ├── {exhibitId}_{ticketNumber}/
