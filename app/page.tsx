@@ -91,6 +91,7 @@ export default function TicketPage() {
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
   const [distributionEnabled, setDistributionEnabled] = useState<boolean>(true);
   const [ready, setReady] = useState(false);
+  const [liffReady, setLiffReady] = useState(false);
   const [isIssuing, setIsIssuing] = useState(false);
   const [issueError, setIssueError] = useState<string | null>(null);
   const [notifyWarning, setNotifyWarning] = useState<string | null>(null);
@@ -100,20 +101,62 @@ export default function TicketPage() {
 
   useEffect(() => {
     if (!exhibitId) return;
+    fetch(`/api/tickets?id=${exhibitId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          setNowServing(data.nowServing ?? null);
+          setCurrentNumber(data.currentNumber ?? null);
+          setDistributionEnabled(data.distributionEnabled ?? true);
+        }
+        setIsLoadingData(false);
+      })
+      .catch(() => setIsLoadingData(false));
+  }, [exhibitId]);
+
+  useEffect(() => {
+    if (!exhibitId) return;
+
+    const CACHE_KEY = "liff_userId";
 
     const initLiff = async () => {
-      await liff.init({ liffId: "2009242984-XYO590kr" });
-      // Firebase 匿名認証
-      await signInAnonymously(auth);
+      const cachedUserId = localStorage.getItem(CACHE_KEY);
 
-      if (!liff.isLoggedIn()) {
-        liff.login();
-        return;
+      if (cachedUserId) {
+        // キャッシュあり: Firebase認証だけ先に済ませてすぐ番号表示
+        await signInAnonymously(auth);
+        profileRef.current = { userId: cachedUserId };
+        checkMyTicket(cachedUserId);
+        setReady(true);
+
+        // LIFF初期化は並行して実行（発行ボタン用）
+        await liff.init({ liffId: "2009242984-XYO590kr" });
+        if (!liff.isLoggedIn()) {
+          localStorage.removeItem(CACHE_KEY);
+          liff.login();
+          return;
+        }
+      } else {
+        // キャッシュなし: liff.init と signInAnonymously を並列実行
+        await Promise.all([
+          liff.init({ liffId: "2009242984-XYO590kr" }),
+          signInAnonymously(auth),
+        ]);
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+        localStorage.setItem(CACHE_KEY, userId);
+        profileRef.current = { userId };
+        checkMyTicket(userId);
+        setReady(true);
       }
-      const profile = await liff.getProfile();
-      profileRef.current = { userId: profile.userId };
-      checkMyTicket(profile.userId);
-      setReady(true);
+
+      setLiffReady(true);
     };
 
     const initializeData = async () => {
@@ -122,34 +165,11 @@ export default function TicketPage() {
       } catch (error) {
         console.error("LIFF初期化エラー:", error);
         setIssueError("読み込みに失敗しました。LINEアプリで開き直してください。");
-        setIsLoadingData(false);
         return;
       }
 
-      // 認証後、まず一度getDocで初期データを取得
+      // 認証後、リアルタイムリスナーを設定
       const ticketRef = doc(db, "tickets", exhibitId);
-      try {
-        const snap = await getDoc(ticketRef);
-        if (snap.exists()) {
-          setNowServing(snap.data().nowServing ?? null);
-          setCurrentNumber(snap.data().currentNumber ?? null);
-          setDistributionEnabled(snap.data().distributionEnabled ?? true);
-          const calledAtData = snap.data().currentNumber_called_at;
-          if (calledAtData && !calledAt) {
-            setCalledAt(
-              calledAtData.toDate
-                ? calledAtData.toDate()
-                : new Date(calledAtData),
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Initial getDoc error:", error);
-      } finally {
-        setIsLoadingData(false);
-      }
-
-      // その後、リアルタイムリスナーを設定
       const unsubscribe = onSnapshot(
         ticketRef,
         (snap) => {
@@ -335,7 +355,9 @@ export default function TicketPage() {
                     待ち時間目安：
                   </div>
                   <div className="bg-[#4F1128] rounded h-18 flex items-center justify-center text-[42px] font-bold leading-none">
-                    {currentNumber === null ? (
+                    {!ready ? (
+                      <span className="text-lg">LINE認証中...</span>
+                    ) : currentNumber === null ? (
                       <span className="text-lg">取得中</span>
                     ) : (
                       <>
@@ -343,7 +365,7 @@ export default function TicketPage() {
                         <span className="mx-1">
                           {nowServing !== null && currentNumber !== null
                             ? currentInfo.timePerPerson *
-                              Math.max(0, (ticketNumber ?? nowServing + 1) - currentNumber)
+                              Math.max(0, (ticketNumber ?? nowServing) - currentNumber)
                             : "取得中"}
                         </span>
                         <span className="text-lg">分</span>
@@ -355,10 +377,10 @@ export default function TicketPage() {
               {!ready ? (
                 <div className="mt-6">
                   <div className="text-xs font-medium mb-1.5 text-white/75">
-                    —
+                    あなたの番号：
                   </div>
                   <div className="bg-transparent border-[2.5px] border-white rounded aspect-square flex items-center justify-center text-[42px] font-bold leading-none">
-                    —
+                    <span className="text-sm">LINE認証中...</span>
                   </div>
                 </div>
               ) : ticketNumber ? (
@@ -463,11 +485,11 @@ export default function TicketPage() {
                   )}
                   <button
                     onClick={issueTicket}
-                    disabled={isIssuing || !ready || isLoadingData || !distributionEnabled}
+                    disabled={isIssuing || !liffReady || isLoadingData || !distributionEnabled}
                     className="w-full bg-white text-[#6B1F3A] py-4 rounded text-lg font-bold transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ letterSpacing: "0.04em" }}
                   >
-                    {!ready || isLoadingData ? "読み込み中..." : isIssuing ? "発行中..." : !distributionEnabled ? "配布終了" : "整理券を受け取る"}
+                    {!liffReady || isLoadingData ? "読み込み中..." : isIssuing ? "発行中..." : !distributionEnabled ? "配布終了" : "整理券を受け取る"}
                   </button>
                 </motion.div>
               </AnimatePresence>
