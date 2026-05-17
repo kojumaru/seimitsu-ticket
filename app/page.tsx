@@ -230,8 +230,8 @@ export default function TicketPage() {
         if (myTicketSnap.exists()) throw new Error("ALREADY_ISSUED");
 
         const snap = await transaction.get(ticketRef);
-        newNumber = (snap.data()?.nowServing || 0) + 1;
-        transaction.set(ticketRef, { nowServing: newNumber }, { merge: true });
+        newNumber = (snap.data()?.nowServing ?? 0) + 1;
+        transaction.update(ticketRef, { nowServing: newNumber });
         transaction.set(myTicketRef, {
           ticketNumber: newNumber,
           exhibitName: exhibitId,
